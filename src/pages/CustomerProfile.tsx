@@ -22,6 +22,7 @@ import type {
   PaymentStatus,
 } from '../types';
 import toast from 'react-hot-toast';
+import { extractErrorMessage } from '../utils';
 
 type Tab = 'profile' | 'addresses' | 'orders' | 'history';
 
@@ -144,7 +145,7 @@ export const CustomerProfile = () => {
       }
       setIsAddressModalOpen(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.description || 'Failed to save address');
+      toast.error(extractErrorMessage(err, 'Failed to save address'));
     }
   };
 
@@ -156,7 +157,7 @@ export const CustomerProfile = () => {
       setAddresses((prev) => prev.filter((a) => a.id !== addressToDelete.id));
       toast.success('Address removed');
     } catch (err: any) {
-      toast.error(err.response?.data?.description || 'Failed to delete address');
+      toast.error(extractErrorMessage(err, 'Failed to delete address'));
     } finally {
       setIsDeleting(false);
       setAddressToDelete(null);

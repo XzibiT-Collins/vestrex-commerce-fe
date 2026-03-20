@@ -7,6 +7,7 @@ import { Button } from '../components/Button';
 import { categoryService } from '../services/categoryService';
 import type { CategoryResponse } from '../types';
 import toast from 'react-hot-toast';
+import { extractErrorMessage } from '../utils';
 
 export const CategoryManagement = () => {
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
@@ -51,7 +52,7 @@ export const CategoryManagement = () => {
       }
       setIsModalOpen(false);
     } catch (err: any) {
-      toast.error(err.response?.data?.description || 'Failed to save category');
+      toast.error(extractErrorMessage(err, 'Failed to save category'));
     } finally {
       setIsSaving(false);
     }
@@ -69,7 +70,7 @@ export const CategoryManagement = () => {
       setCategories((prev) => prev.filter((c) => c.categoryId !== categoryToDelete.categoryId));
       toast.success('Category deleted');
     } catch (err: any) {
-      toast.error(err.response?.data?.description || 'Failed to delete category');
+      toast.error(extractErrorMessage(err, 'Failed to delete category'));
     } finally {
       setIsDeleting(false);
       setCategoryToDelete(null);

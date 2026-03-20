@@ -5,7 +5,7 @@ import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 import { orderService } from '../services/orderService';
 import { OrderResponse, DeliveryStatus, PaymentStatus } from '../types';
-import { formatPrice, cn } from '../utils';
+import { formatPrice, cn, extractErrorMessage } from '../utils';
 import toast from 'react-hot-toast';
 import { Dropdown } from '../components/Dropdown';
 
@@ -44,7 +44,7 @@ export const OrderDetail = () => {
             setOrder({ ...order, deliveryStatus: newStatus });
             toast.success(`Order status updated to ${newStatus}`);
         } catch (err: any) {
-            toast.error(err.response?.data?.description || 'Failed to update status');
+            toast.error(extractErrorMessage(err, 'Failed to update status'));
         } finally {
             setIsUpdating(false);
         }

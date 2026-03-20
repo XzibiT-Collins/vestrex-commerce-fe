@@ -9,7 +9,7 @@ import { productService } from '../services/productService';
 import { categoryService } from '../services/categoryService';
 import { ProductListing, ProductDetails, CategoryResponse, Currency } from '../types';
 import toast from 'react-hot-toast';
-import { parsePrice } from '../utils';
+import { parsePrice, extractErrorMessage } from '../utils';
 import { Dropdown, DropdownOption } from '../components/Dropdown';
 import { Checkbox } from '../components/Checkbox';
 import { useDebounce } from '../hooks/useDebounce';
@@ -175,7 +175,7 @@ export const ProductManagement = () => {
       // Reload current page to reflect server state
       loadProducts(currentPage);
     } catch (err: any) {
-      toast.error(err.response?.data?.description || 'Failed to save product');
+      toast.error(extractErrorMessage(err, 'Failed to save product'));
     } finally {
       setIsSaving(false);
     }
@@ -199,7 +199,7 @@ export const ProductManagement = () => {
         loadProducts(currentPage);
       }
     } catch (err: any) {
-      toast.error(err.response?.data?.description || 'Failed to delete product');
+      toast.error(extractErrorMessage(err, 'Failed to delete product'));
     } finally {
       setIsDeleting(false);
       setProductToDelete(null);

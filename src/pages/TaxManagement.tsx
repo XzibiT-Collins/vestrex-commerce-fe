@@ -9,6 +9,7 @@ import { Checkbox } from '../components/Checkbox';
 import { taxService } from '../services/taxService';
 import type { TaxResponse, TaxRequest } from '../types';
 import toast from 'react-hot-toast';
+import { extractErrorMessage } from '../utils';
 
 const emptyForm: TaxRequest = {
   name: '',
@@ -93,7 +94,7 @@ export const TaxManagement = () => {
       setFormData(emptyForm);
       setEditingTax(null);
     } catch (err: any) {
-      toast.error(err.response?.data?.description || 'Failed to save tax');
+      toast.error(extractErrorMessage(err, 'Failed to save tax'));
     } finally {
       setIsSaving(false);
     }
@@ -108,7 +109,7 @@ export const TaxManagement = () => {
       toast.success('Tax deleted');
       setDeletingTax(null);
     } catch (err: any) {
-      toast.error(err.response?.data?.description || 'Failed to delete tax');
+      toast.error(extractErrorMessage(err, 'Failed to delete tax'));
     } finally {
       setIsDeleting(false);
     }

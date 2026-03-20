@@ -7,6 +7,7 @@ import { Button } from '../components/Button';
 import { couponService } from '../services/couponService';
 import type { CouponListResponse, CouponDiscountType } from '../types';
 import toast from 'react-hot-toast';
+import { extractErrorMessage } from '../utils';
 import { Dropdown } from '../components/Dropdown';
 import { Checkbox } from '../components/Checkbox';
 
@@ -68,7 +69,7 @@ export const CouponManagement = () => {
       setIsModalOpen(false);
       setFormData(emptyForm);
     } catch (err: any) {
-      toast.error(err.response?.data?.description || 'Failed to create coupon');
+      toast.error(extractErrorMessage(err, 'Failed to create coupon'));
     } finally {
       setIsSaving(false);
     }

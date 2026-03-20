@@ -11,6 +11,7 @@ import { taxService } from '../services/taxService';
 import { useCart } from '../contexts/CartContext';
 import type { DeliveryDetailResponse, DeliveryDetailRequest, AddressLabel, TaxCalculationResult } from '../types';
 import toast from 'react-hot-toast';
+import { extractErrorMessage } from '../utils';
 import { Dropdown } from '../components/Dropdown';
 import { Checkbox } from '../components/Checkbox';
 
@@ -72,7 +73,7 @@ export const Checkout = () => {
       setFormData(emptyAddress);
       toast.success('Address added');
     } catch (err: any) {
-      toast.error(err.response?.data?.description || 'Failed to add address');
+      toast.error(extractErrorMessage(err, 'Failed to add address'));
     }
   };
 
@@ -87,7 +88,7 @@ export const Checkout = () => {
       // Redirect to Paystack
       window.location.href = paystack.data.authorization_url;
     } catch (err: any) {
-      toast.error(err.response?.data?.description || 'Checkout failed. Please try again.');
+      toast.error(extractErrorMessage(err, 'Checkout failed. Please try again.'));
     } finally {
       setIsCheckingOut(false);
     }
