@@ -29,6 +29,7 @@ import { CategoryManagement } from './pages/CategoryManagement';
 import { OrderManagement } from './pages/OrderManagement';
 import { OrderDetail } from './pages/OrderDetail';
 import { CouponManagement } from './pages/CouponManagement';
+import { TaxManagement } from './pages/TaxManagement';
 import { CustomerManagement } from './pages/CustomerManagement';
 import { CustomerProfile } from './pages/CustomerProfile';
 import { CartDrawer } from './components/CartDrawer';
@@ -75,6 +76,7 @@ export default function App() {
                   <Route path="/admin/orders" element={<OrderManagement />} />
                   <Route path="/admin/orders/:orderNumber" element={<OrderDetail />} />
                   <Route path="/admin/coupons" element={<CouponManagement />} />
+                  <Route path="/admin/taxes" element={<TaxManagement />} />
                   <Route path="/admin/customers" element={<CustomerManagement />} />
                 </Route>
               </Routes>

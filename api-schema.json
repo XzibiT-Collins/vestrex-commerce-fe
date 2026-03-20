@@ -11,6 +11,47 @@
     }
   ],
   "paths": {
+    "/api/v1/tax/update/{taxId}": {
+      "put": {
+        "tags": [
+          "tax-controller"
+        ],
+        "operationId": "updateTax",
+        "parameters": [
+          {
+            "name": "taxId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseTaxResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/product/update/{productId}": {
       "put": {
         "tags": [
@@ -271,6 +312,36 @@
               "*/*": {
                 "schema": {
                   "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tax/add-tax": {
+      "post": {
+        "tags": [
+          "tax-controller"
+        ],
+        "operationId": "addTax",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaxRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseTaxResponse"
                 }
               }
             }
@@ -737,6 +808,57 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/CustomApiResponseTaxCalculationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tax/{taxId}": {
+      "get": {
+        "tags": [
+          "tax-controller"
+        ],
+        "operationId": "getTaxById",
+        "parameters": [
+          {
+            "name": "taxId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseTaxResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/tax/all": {
+      "get": {
+        "tags": [
+          "tax-controller"
+        ],
+        "operationId": "getAllTaxes",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseListTaxResponse"
                 }
               }
             }
@@ -1344,6 +1466,30 @@
         }
       }
     },
+    "/api/v1/tax/delete/{taxId}": {
+      "delete": {
+        "tags": [
+          "tax-controller"
+        ],
+        "operationId": "deleteTax",
+        "parameters": [
+          {
+            "name": "taxId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/product/delete/{productId}": {
       "delete": {
         "tags": [
@@ -1456,6 +1602,86 @@
   },
   "components": {
     "schemas": {
+      "TaxRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1
+          },
+          "rate": {
+            "type": "number",
+            "minimum": 0
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isCompound": {
+            "type": "boolean"
+          },
+          "applyOrder": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "applyOrder",
+          "code",
+          "name",
+          "rate"
+        ]
+      },
+      "CustomApiResponseTaxResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/TaxResponse"
+          }
+        }
+      },
+      "TaxResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "rate": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "isCompound": {
+            "type": "boolean"
+          },
+          "applyOrder": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "ProductRequest": {
         "type": "object",
         "properties": {
@@ -2294,6 +2520,20 @@
           }
         }
       },
+      "CustomApiResponseListTaxResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TaxResponse"
+            }
+          }
+        }
+      },
       "CustomApiResponseProductDetailsPageResponse": {
         "type": "object",
         "properties": {
@@ -2714,12 +2954,12 @@
           "email": {
             "type": "string"
           },
-          "totalAmountSpent": {
-            "type": "number"
-          },
           "totalOrders": {
             "type": "integer",
             "format": "int64"
+          },
+          "totalAmountSpent": {
+            "type": "number"
           }
         }
       },

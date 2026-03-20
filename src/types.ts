@@ -349,6 +349,29 @@ export interface TaxCalculationResult {
   totalAmountAfterTax: string;
 }
 
+/** Matches backend TaxResponse — returned by admin CRUD endpoints */
+export interface TaxResponse {
+  id: number;
+  name: string;
+  code: string;
+  rate: number;
+  isActive: boolean;
+  isCompound: boolean;
+  applyOrder: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** POST /api/v1/tax/add-tax  |  PUT /api/v1/tax/update/{taxId} */
+export interface TaxRequest {
+  name: string;
+  code: string;
+  rate: number;
+  isActive?: boolean;
+  isCompound?: boolean;
+  applyOrder: number;
+}
+
 // ─── Admin Metrics ──────────────────────────────────────────────────────────
 
 export interface CustomerDataResponse {

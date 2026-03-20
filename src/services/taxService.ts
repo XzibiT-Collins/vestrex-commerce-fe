@@ -1,5 +1,5 @@
 import api from './api';
-import type { CustomApiResponse, TaxCalculationResult } from '../types';
+import type { CustomApiResponse, TaxCalculationResult, TaxRequest, TaxResponse } from '../types';
 
 export const taxService = {
     /**
@@ -12,5 +12,49 @@ export const taxService = {
             { params: { subtotal } }
         );
         return res.data.data;
+    },
+
+    /**
+     * Get all configured taxes (admin).
+     * GET /api/v1/tax/all
+     */
+    getAll: async (): Promise<TaxResponse[]> => {
+        const res = await api.get<CustomApiResponse<TaxResponse[]>>('/tax/all');
+        return res.data.data;
+    },
+
+    /**
+     * Get a single tax by ID (admin).
+     * GET /api/v1/tax/{taxId}
+     */
+    getById: async (taxId: number): Promise<TaxResponse> => {
+        const res = await api.get<CustomApiResponse<TaxResponse>>(`/tax/${taxId}`);
+        return res.data.data;
+    },
+
+    /**
+     * Create a new tax (admin).
+     * POST /api/v1/tax/add-tax
+     */
+    create: async (data: TaxRequest): Promise<TaxResponse> => {
+        const res = await api.post<CustomApiResponse<TaxResponse>>('/tax/add-tax', data);
+        return res.data.data;
+    },
+
+    /**
+     * Update an existing tax (admin).
+     * PUT /api/v1/tax/update/{taxId}
+     */
+    update: async (taxId: number, data: TaxRequest): Promise<TaxResponse> => {
+        const res = await api.put<CustomApiResponse<TaxResponse>>(`/tax/update/${taxId}`, data);
+        return res.data.data;
+    },
+
+    /**
+     * Delete a tax (admin).
+     * DELETE /api/v1/tax/delete/{taxId}
+     */
+    delete: async (taxId: number): Promise<void> => {
+        await api.delete(`/tax/delete/${taxId}`);
     },
 };

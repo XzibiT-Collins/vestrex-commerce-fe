@@ -15,6 +15,7 @@ import {
   Tag,
   ShoppingCart,
   Ticket,
+  Receipt,
   Users,
   Sun,
   Moon
@@ -31,6 +32,7 @@ const menuItems = [
   { icon: Tag, label: 'Categories', path: '/admin/categories' },
   { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
   { icon: Ticket, label: 'Coupons', path: '/admin/coupons' },
+  { icon: Receipt, label: 'Taxes', path: '/admin/taxes' },
   { icon: Users, label: 'Customers', path: '/admin/customers' },
 ];
 

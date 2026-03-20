@@ -10,7 +10,8 @@ import {
   LogOut,
   ChevronRight,
   Menu,
-  X
+  X,
+  Receipt
 } from 'lucide-react';
 import { cn } from '../utils';
 import { useState } from 'react';
@@ -23,6 +24,7 @@ const menuItems = [
   { icon: Tag, label: 'Categories', path: '/admin/categories' },
   { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
   { icon: Ticket, label: 'Coupons', path: '/admin/coupons' },
+  { icon: Receipt, label: 'Taxes', path: '/admin/taxes' },
   { icon: Users, label: 'Customers', path: '/admin/customers' },
 ];
 

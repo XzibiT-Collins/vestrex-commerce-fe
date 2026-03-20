@@ -179,7 +179,7 @@ export const Checkout = () => {
             {/* Subtotal */}
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>GHS {totalPrice}</span>
+              <span>{totalPrice}</span>
             </div>
 
             {/* Tax breakdown */}
