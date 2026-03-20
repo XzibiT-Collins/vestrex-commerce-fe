@@ -32,6 +32,8 @@ import { CouponManagement } from './pages/CouponManagement';
 import { TaxManagement } from './pages/TaxManagement';
 import { CustomerManagement } from './pages/CustomerManagement';
 import { CustomerProfile } from './pages/CustomerProfile';
+import { Accounting } from './pages/Accounting';
+import { Bookkeeping } from './pages/Bookkeeping';
 import { CartDrawer } from './components/CartDrawer';
 import { OAuth2RedirectHandler } from './pages/OAuth2RedirectHandler';
 import { VerifyOtp } from './pages/VerifyOtp';
@@ -78,6 +80,8 @@ export default function App() {
                   <Route path="/admin/coupons" element={<CouponManagement />} />
                   <Route path="/admin/taxes" element={<TaxManagement />} />
                   <Route path="/admin/customers" element={<CustomerManagement />} />
+                  <Route path="/admin/accounting" element={<Accounting />} />
+                  <Route path="/admin/bookkeeping" element={<Bookkeeping />} />
                 </Route>
               </Routes>
             </Layout>

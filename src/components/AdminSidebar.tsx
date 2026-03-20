@@ -11,7 +11,9 @@ import {
   ChevronRight,
   Menu,
   X,
-  Receipt
+  Receipt,
+  Calculator,
+  BookOpen
 } from 'lucide-react';
 import { cn } from '../utils';
 import { useState } from 'react';
@@ -24,8 +26,10 @@ const menuItems = [
   { icon: Tag, label: 'Categories', path: '/admin/categories' },
   { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
   { icon: Ticket, label: 'Coupons', path: '/admin/coupons' },
-  { icon: Receipt, label: 'Taxes', path: '/admin/taxes' },
   { icon: Users, label: 'Customers', path: '/admin/customers' },
+  { icon: Receipt, label: 'Taxes', path: '/admin/taxes' },
+  { icon: Calculator, label: 'Accounting', path: '/admin/accounting' },
+  { icon: BookOpen, label: 'Bookkeeping', path: '/admin/bookkeeping' },
 ];
 
 export const AdminSidebar = () => {

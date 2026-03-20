@@ -785,6 +785,36 @@
         }
       }
     },
+    "/api/v1/admin/bookkeeping/manual-entry": {
+      "post": {
+        "tags": [
+          "bookkeeping-controller"
+        ],
+        "operationId": "recordManualEntry",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ManualJournalEntryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/tax": {
       "get": {
         "tags": [
@@ -1466,6 +1496,244 @@
         }
       }
     },
+    "/api/v1/admin/accounting/summary": {
+      "get": {
+        "tags": [
+          "accounting-controller"
+        ],
+        "operationId": "getLedgerSummary",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseLedgerSummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/accounting/metadata": {
+      "get": {
+        "tags": [
+          "accounting-controller"
+        ],
+        "operationId": "getMetadata",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseAccountingMetadataResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/accounting/journal-entries": {
+      "get": {
+        "tags": [
+          "accounting-controller"
+        ],
+        "operationId": "getJournalEntries",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseListJournalEntryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/accounting/journal-entries/reference": {
+      "get": {
+        "tags": [
+          "accounting-controller"
+        ],
+        "operationId": "getEntriesByReference",
+        "parameters": [
+          {
+            "name": "referenceType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "referenceId",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseListJournalEntryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/accounting/journal-entries/manual": {
+      "get": {
+        "tags": [
+          "accounting-controller"
+        ],
+        "operationId": "getManualEntries",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseListJournalEntryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/accounting/income-statement": {
+      "get": {
+        "tags": [
+          "accounting-controller"
+        ],
+        "operationId": "getIncomeStatement",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseIncomeStatementResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/accounting/cash-flow": {
+      "get": {
+        "tags": [
+          "accounting-controller"
+        ],
+        "operationId": "getCashFlow",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseCashFlowResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/accounting/balance-sheet": {
+      "get": {
+        "tags": [
+          "accounting-controller"
+        ],
+        "operationId": "getBalanceSheet",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseBalanceSheetResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/tax/delete/{taxId}": {
       "delete": {
         "tags": [
@@ -1742,6 +2010,7 @@
           "costPrice",
           "currency",
           "productDescription",
+          "productImage",
           "productName",
           "sellingPrice",
           "shortDescription",
@@ -2509,6 +2778,87 @@
           }
         }
       },
+      "JournalEntryLineRequest": {
+        "type": "object",
+        "properties": {
+          "accountCategory": {
+            "type": "string",
+            "enum": [
+              "CASH",
+              "COGS",
+              "INVENTORY",
+              "SALES_REVENUE",
+              "DISCOUNT_EXPENSE",
+              "ACCOUNTS_PAYABLE",
+              "INVENTORY_ADJUSTMENT",
+              "TAX_PAYABLE",
+              "REFUND_PAYABLE",
+              "COUPON_EXPENSE",
+              "MARKETING_EXPENSE",
+              "LOGISTICS_EXPENSE",
+              "MISCELLANEOUS_EXPENSE",
+              "OWNERS_EQUITY",
+              "OWNERS_CAPITAL",
+              "RETAINED_EARNINGS",
+              "LOANS_PAYABLE",
+              "INVESTMENT_INCOME",
+              "GENERAL_EXPENSE"
+            ]
+          },
+          "entryType": {
+            "type": "string",
+            "enum": [
+              "DEBIT",
+              "CREDIT"
+            ]
+          },
+          "amount": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "accountCategory",
+          "amount",
+          "entryType"
+        ]
+      },
+      "ManualJournalEntryRequest": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string",
+            "minLength": 1
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SALE",
+              "REFUND",
+              "DISCOUNT",
+              "TAX_COLLECTION",
+              "INVENTORY",
+              "INVENTORY_PURCHASE",
+              "INVENTORY_ADJUSTMENT",
+              "ADJUSTMENT"
+            ]
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JournalEntryLineRequest"
+            },
+            "minItems": 1
+          }
+        },
+        "required": [
+          "description",
+          "lines",
+          "type"
+        ]
+      },
       "CustomApiResponseTaxCalculationResponse": {
         "type": "object",
         "properties": {
@@ -3259,6 +3609,346 @@
           },
           "data": {
             "$ref": "#/components/schemas/CouponMetricResponse"
+          }
+        }
+      },
+      "CustomApiResponseLedgerSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LedgerSummaryResponse"
+          }
+        }
+      },
+      "LedgerSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "totalRevenue": {
+            "type": "number"
+          },
+          "totalExpenses": {
+            "type": "number"
+          },
+          "totalAssets": {
+            "type": "number"
+          },
+          "totalLiabilities": {
+            "type": "number"
+          },
+          "netProfit": {
+            "type": "number"
+          },
+          "cashBalance": {
+            "type": "number"
+          }
+        }
+      },
+      "AccountingMetadataResponse": {
+        "type": "object",
+        "properties": {
+          "accountCategories": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnumResponse"
+            }
+          },
+          "journalEntryTypes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/EnumResponse"
+            }
+          }
+        }
+      },
+      "CustomApiResponseAccountingMetadataResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AccountingMetadataResponse"
+          }
+        }
+      },
+      "EnumResponse": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        }
+      },
+      "CustomApiResponseListJournalEntryResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JournalEntryResponse"
+            }
+          }
+        }
+      },
+      "JournalEntryLineResponse": {
+        "type": "object",
+        "properties": {
+          "accountCode": {
+            "type": "string"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "entryType": {
+            "type": "string",
+            "enum": [
+              "DEBIT",
+              "CREDIT"
+            ]
+          },
+          "amount": {
+            "type": "number"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "JournalEntryResponse": {
+        "type": "object",
+        "properties": {
+          "entryNumber": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "SALE",
+              "REFUND",
+              "DISCOUNT",
+              "TAX_COLLECTION",
+              "INVENTORY",
+              "INVENTORY_PURCHASE",
+              "INVENTORY_ADJUSTMENT",
+              "ADJUSTMENT"
+            ]
+          },
+          "referenceType": {
+            "type": "string"
+          },
+          "referenceId": {
+            "type": "string"
+          },
+          "isManual": {
+            "type": "boolean"
+          },
+          "recordedBy": {
+            "type": "string"
+          },
+          "transactionDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lines": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/JournalEntryLineResponse"
+            }
+          }
+        }
+      },
+      "AccountBalanceResponse": {
+        "type": "object",
+        "properties": {
+          "accountCode": {
+            "type": "string"
+          },
+          "accountName": {
+            "type": "string"
+          },
+          "accountType": {
+            "type": "string",
+            "enum": [
+              "ASSET",
+              "LIABILITY",
+              "EQUITY",
+              "REVENUE",
+              "EXPENSE"
+            ]
+          },
+          "accountCategory": {
+            "type": "string",
+            "enum": [
+              "CASH",
+              "COGS",
+              "INVENTORY",
+              "SALES_REVENUE",
+              "DISCOUNT_EXPENSE",
+              "ACCOUNTS_PAYABLE",
+              "INVENTORY_ADJUSTMENT",
+              "TAX_PAYABLE",
+              "REFUND_PAYABLE",
+              "COUPON_EXPENSE",
+              "MARKETING_EXPENSE",
+              "LOGISTICS_EXPENSE",
+              "MISCELLANEOUS_EXPENSE",
+              "OWNERS_EQUITY",
+              "OWNERS_CAPITAL",
+              "RETAINED_EARNINGS",
+              "LOANS_PAYABLE",
+              "INVESTMENT_INCOME",
+              "GENERAL_EXPENSE"
+            ]
+          },
+          "balance": {
+            "type": "number"
+          }
+        }
+      },
+      "CustomApiResponseIncomeStatementResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/IncomeStatementResponse"
+          }
+        }
+      },
+      "IncomeStatementResponse": {
+        "type": "object",
+        "properties": {
+          "totalRevenue": {
+            "type": "number"
+          },
+          "totalCOGS": {
+            "type": "number"
+          },
+          "grossProfit": {
+            "type": "number"
+          },
+          "totalExpenses": {
+            "type": "number"
+          },
+          "netProfit": {
+            "type": "number"
+          },
+          "revenueAccounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountBalanceResponse"
+            }
+          },
+          "expenseAccounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountBalanceResponse"
+            }
+          }
+        }
+      },
+      "CashFlowResponse": {
+        "type": "object",
+        "properties": {
+          "totalInflows": {
+            "type": "number"
+          },
+          "totalOutflows": {
+            "type": "number"
+          },
+          "netCashFlow": {
+            "type": "number"
+          },
+          "dailyCashFlows": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailyCashFlow"
+            }
+          }
+        }
+      },
+      "CustomApiResponseCashFlowResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/CashFlowResponse"
+          }
+        }
+      },
+      "DailyCashFlow": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date"
+          },
+          "inflow": {
+            "type": "number"
+          },
+          "outflow": {
+            "type": "number"
+          },
+          "net": {
+            "type": "number"
+          }
+        }
+      },
+      "BalanceSheetResponse": {
+        "type": "object",
+        "properties": {
+          "totalAssets": {
+            "type": "number"
+          },
+          "totalLiabilities": {
+            "type": "number"
+          },
+          "totalEquity": {
+            "type": "number"
+          },
+          "assetAccounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountBalanceResponse"
+            }
+          },
+          "liabilityAccounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountBalanceResponse"
+            }
+          },
+          "equityAccounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AccountBalanceResponse"
+            }
+          }
+        }
+      },
+      "CustomApiResponseBalanceSheetResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/BalanceSheetResponse"
           }
         }
       }

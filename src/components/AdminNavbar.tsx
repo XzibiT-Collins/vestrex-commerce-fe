@@ -18,7 +18,9 @@ import {
   Receipt,
   Users,
   Sun,
-  Moon
+  Moon,
+  Calculator,
+  BookOpen
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -32,8 +34,10 @@ const menuItems = [
   { icon: Tag, label: 'Categories', path: '/admin/categories' },
   { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
   { icon: Ticket, label: 'Coupons', path: '/admin/coupons' },
-  { icon: Receipt, label: 'Taxes', path: '/admin/taxes' },
   { icon: Users, label: 'Customers', path: '/admin/customers' },
+  { icon: Receipt, label: 'Taxes', path: '/admin/taxes' },
+  { icon: Calculator, label: 'Accounting', path: '/admin/accounting' },
+  { icon: BookOpen, label: 'Bookkeeping', path: '/admin/bookkeeping' },
 ];
 
 export const AdminNavbar = () => {

@@ -486,3 +486,144 @@ export interface Address {
   addressLine: string;
   isActive?: boolean;
 }
+
+// ─── Accounting & Bookkeeping ──────────────────────────────────────────────────
+
+export enum EntryType {
+  SALE = 'SALE',
+  REFUND = 'REFUND',
+  DISCOUNT = 'DISCOUNT',
+  TAX_COLLECTION = 'TAX_COLLECTION',
+  INVENTORY = 'INVENTORY',
+  INVENTORY_PURCHASE = 'INVENTORY_PURCHASE',
+  INVENTORY_ADJUSTMENT = 'INVENTORY_ADJUSTMENT',
+  ADJUSTMENT = 'ADJUSTMENT'
+}
+
+export enum AccountCategory {
+  CASH = 'CASH',
+  COGS = 'COGS',
+  INVENTORY = 'INVENTORY',
+  SALES_REVENUE = 'SALES_REVENUE',
+  DISCOUNT_EXPENSE = 'DISCOUNT_EXPENSE',
+  ACCOUNTS_PAYABLE = 'ACCOUNTS_PAYABLE',
+  INVENTORY_ADJUSTMENT = 'INVENTORY_ADJUSTMENT',
+  TAX_PAYABLE = 'TAX_PAYABLE',
+  REFUND_PAYABLE = 'REFUND_PAYABLE',
+  COUPON_EXPENSE = 'COUPON_EXPENSE',
+  MARKETING_EXPENSE = 'MARKETING_EXPENSE',
+  LOGISTICS_EXPENSE = 'LOGISTICS_EXPENSE',
+  MISCELLANEOUS_EXPENSE = 'MISCELLANEOUS_EXPENSE',
+  OWNERS_EQUITY = 'OWNERS_EQUITY',
+  OWNERS_CAPITAL = 'OWNERS_CAPITAL',
+  RETAINED_EARNINGS = 'RETAINED_EARNINGS',
+  LOANS_PAYABLE = 'LOANS_PAYABLE',
+  INVESTMENT_INCOME = 'INVESTMENT_INCOME',
+  GENERAL_EXPENSE = 'GENERAL_EXPENSE'
+}
+
+export enum JournalEntryLineType {
+  DEBIT = 'DEBIT',
+  CREDIT = 'CREDIT'
+}
+
+export enum AccountType {
+  ASSET = 'ASSET',
+  LIABILITY = 'LIABILITY',
+  EQUITY = 'EQUITY',
+  REVENUE = 'REVENUE',
+  EXPENSE = 'EXPENSE'
+}
+
+export interface JournalEntryLineRequest {
+  accountCategory: AccountCategory;
+  entryType: JournalEntryLineType;
+  amount: number;
+  description?: string;
+}
+
+export interface ManualJournalEntryRequest {
+  description: string;
+  type: EntryType;
+  lines: JournalEntryLineRequest[];
+}
+
+export interface JournalEntryLineResponse {
+  accountCode?: string;
+  accountName?: string;
+  entryType?: JournalEntryLineType;
+  amount?: number;
+  description?: string;
+}
+
+export interface JournalEntryResponse {
+  entryNumber?: string;
+  description?: string;
+  type?: EntryType;
+  referenceType?: string;
+  referenceId?: string;
+  isManual?: boolean;
+  recordedBy?: string;
+  transactionDate?: string;
+  lines?: JournalEntryLineResponse[];
+}
+
+export interface LedgerSummaryResponse {
+  totalRevenue?: number;
+  totalExpenses?: number;
+  totalAssets?: number;
+  totalLiabilities?: number;
+  netProfit?: number;
+  cashBalance?: number;
+}
+
+export interface AccountBalanceResponse {
+  accountCode?: string;
+  accountName?: string;
+  accountType?: AccountType;
+  accountCategory?: AccountCategory;
+  balance?: number;
+}
+
+export interface IncomeStatementResponse {
+  totalRevenue?: number;
+  totalCOGS?: number;
+  grossProfit?: number;
+  totalExpenses?: number;
+  netProfit?: number;
+  revenueAccounts?: AccountBalanceResponse[];
+  expenseAccounts?: AccountBalanceResponse[];
+}
+
+export interface DailyCashFlow {
+  date?: string;
+  inflow?: number;
+  outflow?: number;
+  net?: number;
+}
+
+export interface CashFlowResponse {
+  totalInflows?: number;
+  totalOutflows?: number;
+  netCashFlow?: number;
+  dailyCashFlows?: DailyCashFlow[];
+}
+
+export interface BalanceSheetResponse {
+  totalAssets?: number;
+  totalLiabilities?: number;
+  totalEquity?: number;
+  assetAccounts?: AccountBalanceResponse[];
+  liabilityAccounts?: AccountBalanceResponse[];
+  equityAccounts?: AccountBalanceResponse[];
+}
+
+export interface EnumResponse {
+  value: string;
+  label: string;
+}
+
+export interface AccountingMetadataResponse {
+  accountCategories: EnumResponse[];
+  journalEntryTypes: EnumResponse[];
+}
