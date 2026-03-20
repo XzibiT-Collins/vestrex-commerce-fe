@@ -31,6 +31,7 @@ import { OrderDetail } from './pages/OrderDetail';
 import { CouponManagement } from './pages/CouponManagement';
 import { TaxManagement } from './pages/TaxManagement';
 import { CustomerManagement } from './pages/CustomerManagement';
+import { CustomerDetails } from './pages/CustomerDetails';
 import { CustomerProfile } from './pages/CustomerProfile';
 import { Accounting } from './pages/Accounting';
 import { Bookkeeping } from './pages/Bookkeeping';
@@ -80,6 +81,7 @@ export default function App() {
                   <Route path="/admin/coupons" element={<CouponManagement />} />
                   <Route path="/admin/taxes" element={<TaxManagement />} />
                   <Route path="/admin/customers" element={<CustomerManagement />} />
+                  <Route path="/admin/customers/:id" element={<CustomerDetails />} />
                   <Route path="/admin/accounting" element={<Accounting />} />
                   <Route path="/admin/bookkeeping" element={<Bookkeeping />} />
                 </Route>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminTable } from '../components/AdminTable';
 import { Badge } from '../components/Badge';
 import { formatPrice } from '../utils';
@@ -7,6 +8,7 @@ import { CustomerDataResponse } from '../types';
 import toast from 'react-hot-toast';
 
 export const CustomerManagement = () => {
+  const navigate = useNavigate();
   const [customers, setCustomers] = useState<CustomerDataResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalElements, setTotalElements] = useState(0);
@@ -43,7 +45,10 @@ export const CustomerManagement = () => {
         columns={[
           {
             header: 'Customer', accessor: (row: CustomerDataResponse) => (
-              <div>
+              <div 
+                className="cursor-pointer hover:underline"
+                onClick={() => navigate(`/admin/customers/${row.id}`)}
+              >
                 <p className="font-bold dark:text-white">{row.fullName}</p>
                 <p className="text-xs text-[#999999]">{row.email}</p>
               </div>

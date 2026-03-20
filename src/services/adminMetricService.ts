@@ -8,7 +8,9 @@ import {
     SiteVisitMetric,
     DashboardMetrics,
     TopCustomer,
-    LowStockProduct
+    LowStockProduct,
+    CustomerFullDetailsResponse,
+    OrderListResponse
 } from '../types';
 
 export const adminMetricService = {
@@ -81,6 +83,27 @@ export const adminMetricService = {
     getLowStockProducts: async (): Promise<LowStockProduct[]> => {
         const response = await api.get<CustomApiResponse<LowStockProduct[]>>(
             `/admin/metrics/low-stock-products`
+        );
+        return response.data.data;
+    },
+
+    /**
+     * GET /api/v1/admin/metrics/customers/{userId}
+     */
+    getCustomerDetails: async (userId: number): Promise<CustomerFullDetailsResponse> => {
+        const response = await api.get<CustomApiResponse<CustomerFullDetailsResponse>>(
+            `/admin/metrics/customers/${userId}`
+        );
+        return response.data.data;
+    },
+
+    /**
+     * GET /api/v1/admin/metrics/customers/{userId}/orders
+     */
+    getCustomerOrders: async (userId: number, page: number = 0, size: number = 10): Promise<PageResponse<OrderListResponse>> => {
+        const response = await api.get<CustomApiResponse<PageResponse<OrderListResponse>>>(
+            `/admin/metrics/customers/${userId}/orders`,
+            { params: { page, size } }
         );
         return response.data.data;
     }

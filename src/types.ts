@@ -627,3 +627,14 @@ export interface AccountingMetadataResponse {
   accountCategories: EnumResponse[];
   journalEntryTypes: EnumResponse[];
 }
+
+export interface CustomerFullDetailsResponse {
+  id: number;
+  fullName: string;
+  email: string;
+  dateJoined: string;
+  isActive: boolean;
+  addresses: DeliveryDetailResponse[];
+  totalSpent: string;
+  orderCount: number;
+}
