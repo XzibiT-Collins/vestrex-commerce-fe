@@ -39,17 +39,17 @@ const emptyAddress: DeliveryDetailRequest = {
   isDefault: false,
 };
 
-const STATUS_COLORS: Record<DeliveryStatus | PaymentStatus, string> = {
-  PENDING: 'default',
-  PACKING: 'default',
-  OUT_FOR_DELIVERY: 'warning',
+const STATUS_COLORS: Record<string, string> = {
+  PENDING: 'warning',
+  PACKING: 'info',
+  OUT_FOR_DELIVERY: 'info',
   DELIVERED: 'success',
   CANCELLED: 'danger',
-  INITIATED: 'default',
+  INITIATED: 'warning',
   COMPLETED: 'success',
   FAILED: 'danger',
   PAID: 'success',
-} as any;
+};
 
 export const CustomerProfile = () => {
   const { user } = useAuth();

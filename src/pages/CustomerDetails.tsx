@@ -177,8 +177,12 @@ export const CustomerDetails = () => {
           },
           {
             header: 'Delivery', accessor: (row) => (
-              <Badge variant={row.deliveryStatus === 'DELIVERED' ? 'success' : 'default'}>
-                {row.deliveryStatus}
+              <Badge variant={
+                row.deliveryStatus === 'DELIVERED' ? 'success' :
+                row.deliveryStatus === 'CANCELLED' ? 'danger' :
+                row.deliveryStatus === 'PENDING' ? 'warning' : 'info'
+              }>
+                {row.deliveryStatus.replace(/_/g, ' ')}
               </Badge>
             )
           }

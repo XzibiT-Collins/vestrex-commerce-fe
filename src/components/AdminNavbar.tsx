@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   Search,
@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAdminNotifications } from '../hooks/useAdminNotifications';
 import { cn } from '../utils';
 import { Dropdown } from './Dropdown';
 
@@ -46,6 +47,25 @@ export const AdminNavbar = () => {
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+  const { notifications, unreadCount, markAllAsRead } = useAdminNotifications();
+
+  const notificationsRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setIsNotificationsOpen(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   return (
     <>
@@ -86,12 +106,72 @@ export const AdminNavbar = () => {
             </button>
           </div>
 
-          <button className="p-2 hover:bg-[#F5F5F5] dark:hover:bg-zinc-900 rounded-xl transition-colors relative">
-            <Bell className="h-5 w-5 text-[#666666] dark:text-zinc-400" />
-            <span className="absolute top-2 right-2 h-2 w-2 bg-red-500 rounded-full border-2 border-white dark:border-zinc-950" />
-          </button>
+          <div className="relative" ref={notificationsRef}>
+            <button
+              onClick={() => {
+                setIsNotificationsOpen(!isNotificationsOpen);
+                if (!isNotificationsOpen) markAllAsRead();
+              }}
+              className="p-2 hover:bg-[#F5F5F5] dark:hover:bg-zinc-900 rounded-xl transition-colors relative"
+            >
+              <Bell className="h-5 w-5 text-[#666666] dark:text-zinc-400" />
+              {unreadCount > 0 && (
+                <span className="absolute top-1.5 right-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white border-2 border-white dark:border-zinc-950">
+                  {unreadCount > 9 ? '9+' : unreadCount}
+                </span>
+              )}
+            </button>
 
-          <div className="relative">
+            {isNotificationsOpen && (
+              <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-[#F5F5F5] dark:border-zinc-800 py-2 z-50 max-h-96 overflow-y-auto">
+                <div className="px-4 py-3 border-b border-[#F5F5F5] dark:border-zinc-800 flex justify-between items-center sticky top-0 bg-white dark:bg-zinc-900 z-10">
+                  <h3 className="text-sm font-bold dark:text-white">Notifications</h3>
+                  <span className="text-xs text-[#999999]">{notifications.length} total</span>
+                </div>
+                <div className="flex flex-col">
+                  {notifications.length === 0 ? (
+                    <div className="px-4 py-8 text-center text-sm text-[#999999]">
+                      No notifications yet
+                    </div>
+                  ) : (
+                    notifications.map((notif, idx) => (
+                      <Link
+                        key={idx}
+                        to={`/admin/orders/${notif.orderNumber}`}
+                        onClick={() => setIsNotificationsOpen(false)}
+                        className="block px-4 py-3 hover:bg-[#F5F5F5] dark:hover:bg-zinc-800 transition-colors border-b border-[#F5F5F5] dark:border-zinc-800 last:border-0"
+                      >
+                        <p className="text-xs font-bold text-zinc-900 dark:text-white mb-1">
+                          {notif.message}
+                        </p>
+                        <div className="flex justify-between items-center mb-0.5">
+                          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
+                            Order: {notif.orderNumber}
+                          </p>
+                          <p className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300">
+                            {notif.totalAmount}
+                          </p>
+                        </div>
+                        <div className="flex justify-between items-center mt-2 border-t border-[#F5F5F5] dark:border-zinc-800 pt-2">
+                          <span className="text-[10px] font-medium text-accent-dark">
+                            {notif.customerEmail}
+                          </span>
+                          <span className="text-[10px] text-zinc-400">
+                            {new Date(notif.placedAt).toLocaleTimeString([], {
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </span>
+                        </div>
+                      </Link>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="relative" ref={profileRef}>
             <button
               onClick={() => setIsProfileOpen(!isProfileOpen)}
               className="flex items-center gap-3 p-1.5 hover:bg-[#F5F5F5] dark:hover:bg-zinc-900 rounded-xl transition-colors"
