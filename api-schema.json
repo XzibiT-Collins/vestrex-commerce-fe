@@ -279,6 +279,19 @@
         }
       }
     },
+    "/test/ws": {
+      "post": {
+        "tags": [
+          "test-controller"
+        ],
+        "operationId": "testWebSocket",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/webhook": {
       "post": {
         "tags": [
@@ -785,6 +798,66 @@
         }
       }
     },
+    "/api/v1/admin/stock-conversions/reverse": {
+      "post": {
+        "tags": [
+          "stock-conversion-controller"
+        ],
+        "operationId": "convertReverse",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StockConversionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseStockConversionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/stock-conversions/forward": {
+      "post": {
+        "tags": [
+          "stock-conversion-controller"
+        ],
+        "operationId": "convertForward",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StockConversionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseStockConversionResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/bookkeeping/manual-entry": {
       "post": {
         "tags": [
@@ -1010,6 +1083,83 @@
           "product-controller"
         ],
         "operationId": "getProductListings",
+        "parameters": [
+          {
+            "name": "pageable",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponsePageResponseProductListing"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/product/admin/search": {
+      "get": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "searchAdminProducts",
+        "parameters": [
+          {
+            "name": "categoryId",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "searchTerm",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponsePageResponseProductListing"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/product/admin/listing": {
+      "get": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "getAdminProductListings",
         "parameters": [
           {
             "name": "pageable",
@@ -1319,6 +1469,57 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/CustomApiResponseAuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/product-families": {
+      "get": {
+        "tags": [
+          "product-family-controller"
+        ],
+        "operationId": "getAllFamilies",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseListProductFamilySummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/product-families/{id}/available-uoms": {
+      "get": {
+        "tags": [
+          "product-family-controller"
+        ],
+        "operationId": "getAvailableUoms",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseAvailableUomsResponse"
                 }
               }
             }
@@ -2028,14 +2229,15 @@
             "minLength": 1
           },
           "productDescription": {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           "shortDescription": {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
-          "stockKeepingUnit": {
+          "brand": {
+            "type": "string"
+          },
+          "size": {
             "type": "string"
           },
           "currency": {
@@ -2065,6 +2267,20 @@
             "type": "integer",
             "format": "int64"
           },
+          "familyId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "uomCode": {
+            "type": "string"
+          },
+          "conversionFactor": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isNewProduct": {
+            "type": "boolean"
+          },
           "isActive": {
             "type": "boolean"
           },
@@ -2079,11 +2295,9 @@
         "required": [
           "costPrice",
           "currency",
-          "productDescription",
           "productImage",
           "productName",
           "sellingPrice",
-          "shortDescription",
           "stockQuantity"
         ]
       },
@@ -2848,6 +3062,102 @@
           }
         }
       },
+      "StockConversionRequest": {
+        "type": "object",
+        "properties": {
+          "sourceProductId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "targetProductId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "notes": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "quantity",
+          "sourceProductId"
+        ]
+      },
+      "CustomApiResponseStockConversionResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/StockConversionResponse"
+          }
+        }
+      },
+      "StockConversionResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "conversionNumber": {
+            "type": "string"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "FORWARD",
+              "REVERSE"
+            ]
+          },
+          "fromProductId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fromProductName": {
+            "type": "string"
+          },
+          "fromQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "toProductId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "toProductName": {
+            "type": "string"
+          },
+          "toQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "fromCostValue": {
+            "type": "number"
+          },
+          "toCostValue": {
+            "type": "number"
+          },
+          "varianceAmount": {
+            "type": "number"
+          },
+          "convertedBy": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "convertedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
       "JournalEntryLineRequest": {
         "type": "object",
         "properties": {
@@ -2872,7 +3182,8 @@
               "RETAINED_EARNINGS",
               "LOANS_PAYABLE",
               "INVESTMENT_INCOME",
-              "GENERAL_EXPENSE"
+              "GENERAL_EXPENSE",
+              "INVENTORY_VARIANCE"
             ]
           },
           "entryType": {
@@ -3310,6 +3621,95 @@
           }
         }
       },
+      "CustomApiResponseListProductFamilySummaryResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductFamilySummaryResponse"
+            }
+          }
+        }
+      },
+      "ProductFamilySummaryResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "familyCode": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "brand": {
+            "type": "string"
+          },
+          "baseUnitProductId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "baseUnitSku": {
+            "type": "string"
+          }
+        }
+      },
+      "AvailableUomsResponse": {
+        "type": "object",
+        "properties": {
+          "familyCode": {
+            "type": "string"
+          },
+          "baseUnitCost": {
+            "type": "number"
+          },
+          "availableUoms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UnitOfMeasureResponse"
+            }
+          },
+          "takenUoms": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "CustomApiResponseAvailableUomsResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/AvailableUomsResponse"
+          }
+        }
+      },
+      "UnitOfMeasureResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "code": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        }
+      },
       "CustomApiResponseListMostPurchaseProductResponse": {
         "type": "object",
         "properties": {
@@ -3397,12 +3797,12 @@
       "PageVisitMetric": {
         "type": "object",
         "properties": {
-          "page": {
-            "type": "string"
-          },
           "uniqueVisits": {
             "type": "integer",
             "format": "int64"
+          },
+          "page": {
+            "type": "string"
           }
         }
       },
@@ -3457,10 +3857,10 @@
             "type": "integer",
             "format": "int32"
           },
-          "productName": {
+          "productImage": {
             "type": "string"
           },
-          "productImage": {
+          "productName": {
             "type": "string"
           }
         }
@@ -3554,15 +3954,15 @@
             "type": "integer",
             "format": "int64"
           },
-          "productName": {
-            "type": "string"
+          "totalSold": {
+            "type": "integer",
+            "format": "int64"
           },
           "productImage": {
             "type": "string"
           },
-          "totalSold": {
-            "type": "integer",
-            "format": "int64"
+          "productName": {
+            "type": "string"
           }
         }
       },
@@ -3925,7 +4325,8 @@
               "RETAINED_EARNINGS",
               "LOANS_PAYABLE",
               "INVESTMENT_INCOME",
-              "GENERAL_EXPENSE"
+              "GENERAL_EXPENSE",
+              "INVENTORY_VARIANCE"
             ]
           },
           "balance": {

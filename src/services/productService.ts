@@ -18,6 +18,16 @@ export const productService = {
         return res.data.data;
     },
 
+    getAdminListings: async (
+        page = 0,
+        size = 9
+    ): Promise<PageResponse<ProductListing>> => {
+        const res = await api.get('/product/admin/listing', {
+            params: { page, size },
+        });
+        return res.data.data;
+    },
+
     search: async (
         params: {
             categoryId?: number;
@@ -28,6 +38,19 @@ export const productService = {
         }
     ): Promise<PageResponse<ProductListing>> => {
         const res = await api.get('/product/search', { params });
+        return res.data.data;
+    },
+
+    adminSearch: async (
+        params: {
+            categoryId?: number;
+            searchTerm?: string;
+            page?: number;
+            size?: number;
+            sort?: string;
+        }
+    ): Promise<PageResponse<ProductListing>> => {
+        const res = await api.get('/product/admin/search', { params });
         return res.data.data;
     },
 

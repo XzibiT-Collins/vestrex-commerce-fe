@@ -52,7 +52,7 @@ export const ProductManagement = () => {
 
   const loadProducts = (page: number) => {
     setIsLoading(true);
-    productService.getListings(page - 1, PAGE_SIZE)
+    productService.getAdminListings(page - 1, PAGE_SIZE)
       .then((res) => {
         setProducts(res.content);
         setTotalPages(res.totalPages || 1);
@@ -78,7 +78,7 @@ export const ProductManagement = () => {
   useEffect(() => {
     if (!isSearching) return;
     setIsLoading(true);
-    productService.search({ searchTerm: debouncedSearch, page: 0, size: PAGE_SIZE })
+    productService.adminSearch({ searchTerm: debouncedSearch, page: 0, size: PAGE_SIZE })
       .then((res) => {
         setProducts(res.content);
         setTotalPages(res.totalPages || 1);
