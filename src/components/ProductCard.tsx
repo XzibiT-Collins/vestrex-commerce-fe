@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Badge } from './Badge';
 import { Button } from './Button';
-import { ShoppingCart } from 'lucide-react';
+import { ShoppingCart, Box } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import toast from 'react-hot-toast';
 import { motion } from 'motion/react';
@@ -41,12 +41,19 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     >
       <Link to={`/products/${product.slug}`}>
         <div className="aspect-[4/5] overflow-hidden bg-[#FDFBFB] dark:bg-zinc-950">
-          <img
-            src={product.productImageUrl || `https://picsum.photos/seed/${product.slug}/800/1000`}
-            alt={product.productName}
-            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-100 dark:opacity-80"
-            referrerPolicy="no-referrer"
-          />
+          {product.productImageUrl ? (
+            <img
+              src={product.productImageUrl}
+              alt={product.productName}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 opacity-100 dark:opacity-80"
+              referrerPolicy="no-referrer"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400">
+              <Box className="h-12 w-12 opacity-30 mb-2" />
+              <span className="text-xs font-medium uppercase tracking-widest opacity-50">No Image</span>
+            </div>
+          )}
           {product.isOutOfStock && (
             <div className="absolute top-4 left-4">
               <Badge variant="default">Out of Stock</Badge>

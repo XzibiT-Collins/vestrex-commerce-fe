@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, ShoppingBag, Trash2, Minus, Plus, ArrowRight } from 'lucide-react';
+import { X, ShoppingBag, Trash2, Minus, Plus, ArrowRight, Box } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './Button';
@@ -82,12 +82,18 @@ export const CartDrawer = () => {
                   {items.map((item) => (
                     <div key={item.id} className="flex gap-4">
                       <div className="h-24 w-20 rounded-xl overflow-hidden bg-[#F5F5F5] dark:bg-zinc-900 flex-shrink-0">
-                        <img
-                          src={item.imageUrl || `https://picsum.photos/seed/${item.id}/400/500`}
-                          alt={item.name}
-                          className="w-full h-full object-cover opacity-100 dark:opacity-80"
-                          referrerPolicy="no-referrer"
-                        />
+                        {item.imageUrl ? (
+                          <img
+                            src={item.imageUrl}
+                            alt={item.name}
+                            className="w-full h-full object-cover opacity-100 dark:opacity-80"
+                            referrerPolicy="no-referrer"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-zinc-400">
+                            <Box className="h-6 w-6 opacity-50" />
+                          </div>
+                        )}
                       </div>
                       <div className="flex-1 flex flex-col justify-between py-1">
                         <div>

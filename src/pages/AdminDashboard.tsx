@@ -14,7 +14,8 @@ import {
   TrendingUp,
   Package,
   Activity,
-  Upload
+  Upload,
+  Box
 } from 'lucide-react';
 import {
   XAxis,
@@ -306,8 +307,12 @@ export const AdminDashboard = () => {
             ) : (
               metrics?.top5Compositions.map((product, i) => (
                 <div key={i} className="flex items-center gap-4 group">
-                  <div className="h-12 w-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0">
-                    <img src={product.productImage || `https://picsum.photos/seed/${product.productId}/100/100`} alt={product.productName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                  <div className="h-12 w-12 rounded-xl bg-zinc-100 dark:bg-zinc-800 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                    {product.productImage ? (
+                      <img src={product.productImage} alt={product.productName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                    ) : (
+                      <Box className="h-5 w-5 opacity-50 text-zinc-400" />
+                    )}
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-bold text-zinc-900 dark:text-white truncate">{product.productName}</p>

@@ -25,7 +25,8 @@ import {
   ArrowDownRight,
   MousePointer2,
   Clock,
-  AlertCircle
+  AlertCircle,
+  Box
 } from 'lucide-react';
 import { formatPrice, cn } from '../utils';
 import { Badge } from '../components/Badge';
@@ -452,8 +453,12 @@ export const Analytics = () => {
                 {lowStockProducts.map((p) => (
                   <div key={p.id} className="flex justify-between items-center p-4 bg-[#FDFBFB] dark:bg-zinc-950 rounded-2xl border border-[#F5F5F5] dark:border-zinc-800">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg overflow-hidden shrink-0">
-                        <img src={p.productImage || `https://picsum.photos/seed/${p.id}/100/100`} alt={p.productName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                      <div className="h-10 w-10 rounded-lg overflow-hidden shrink-0 flex items-center justify-center bg-zinc-100 dark:bg-zinc-800">
+                        {p.productImage ? (
+                          <img src={p.productImage} alt={p.productName} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                        ) : (
+                          <Box className="h-5 w-5 opacity-50 text-zinc-400" />
+                        )}
                       </div>
                       <div>
                         <p className="text-sm font-bold dark:text-white">{p.productName}</p>

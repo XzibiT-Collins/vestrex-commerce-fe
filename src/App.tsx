@@ -25,6 +25,7 @@ import { OrderHistory } from './pages/OrderHistory';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { Analytics } from './pages/Analytics';
 import { ProductManagement } from './pages/ProductManagement';
+import { AdminProductDetails } from './pages/AdminProductDetails';
 import { CategoryManagement } from './pages/CategoryManagement';
 import { OrderManagement } from './pages/OrderManagement';
 import { OrderDetail } from './pages/OrderDetail';
@@ -75,6 +76,7 @@ export default function App() {
                   <Route path="/admin" element={<AdminDashboard />} />
                   <Route path="/admin/analytics" element={<Analytics />} />
                   <Route path="/admin/products" element={<ProductManagement />} />
+                  <Route path="/admin/products/:productId" element={<AdminProductDetails />} />
                   <Route path="/admin/categories" element={<CategoryManagement />} />
                   <Route path="/admin/orders" element={<OrderManagement />} />
                   <Route path="/admin/orders/:orderNumber" element={<OrderDetail />} />

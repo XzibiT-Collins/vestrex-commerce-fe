@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ShoppingBag, Minus, Plus, AlertCircle, ArrowLeft } from 'lucide-react';
+import { ShoppingBag, Minus, Plus, AlertCircle, ArrowLeft, Box } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 import { productService } from '../services/productService';
@@ -87,11 +87,18 @@ export const ProductDetails = () => {
           animate={{ opacity: 1, x: 0 }}
           className="aspect-[3/4] overflow-hidden rounded-3xl bg-[#F5F5F5] dark:bg-zinc-900"
         >
-          <img
-            src={product.productImageUrl || `https://picsum.photos/seed/${product.slug}/800/1000`}
-            alt={product.productName}
-            className="w-full h-full object-cover"
-          />
+          {product.productImageUrl ? (
+            <img
+              src={product.productImageUrl}
+              alt={product.productName}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400">
+              <Box className="h-16 w-16 opacity-30 mb-4" />
+              <span className="text-sm font-medium uppercase tracking-widest opacity-50">No Image Available</span>
+            </div>
+          )}
         </motion.div>
 
         {/* Details */}

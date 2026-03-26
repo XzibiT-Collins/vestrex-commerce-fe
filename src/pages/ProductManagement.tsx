@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminTable } from '../components/AdminTable';
 import { Modal } from '../components/Modal';
-import { ConfirmModal } from '../components/ConfirmModal';
+// import { ConfirmModal } from '../components/ConfirmModal';
 import { Input } from '../components/Input';
 import { Button } from '../components/Button';
 import { ImageUpload } from '../components/ImageUpload';
@@ -13,14 +14,20 @@ import { parsePrice, extractErrorMessage } from '../utils';
 import { Dropdown, DropdownOption } from '../components/Dropdown';
 import { Checkbox } from '../components/Checkbox';
 import { useDebounce } from '../hooks/useDebounce';
+import { Box } from 'lucide-react';
 
 const CURRENCIES: Currency[] = [Currency.USD, Currency.EUR, Currency.GBP, Currency.GHS];
 
 const emptyForm = {
+  isNewProduct: true,
+  familyId: '',
+  uomCode: '',
+  conversionFactor: '',
   productName: '',
+  brand: '',
+  size: '',
   shortDescription: '',
   productDescription: '',
-  stockKeepingUnit: '',
   currency: 'GHS' as Currency,
   sellingPrice: '',
   costPrice: '',
@@ -35,8 +42,12 @@ const emptyForm = {
 const PAGE_SIZE = 10;
 
 export const ProductManagement = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState<ProductListing[]>([]);
   const [categories, setCategories] = useState<CategoryResponse[]>([]);
+  const [families, setFamilies] = useState<any[]>([]);
+  const [availableUoms, setAvailableUoms] = useState<any[]>([]);
+  const [baseUnitCost, setBaseUnitCost] = useState('0');
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
@@ -47,8 +58,10 @@ export const ProductManagement = () => {
   const [editingProduct, setEditingProduct] = useState<ProductDetails | null>(null);
   const [formData, setFormData] = useState(emptyForm);
   const [isSaving, setIsSaving] = useState(false);
-  const [productToDelete, setProductToDelete] = useState<ProductListing | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
+  // const [productToDelete, setProductToDelete] = useState<ProductListing | null>(null);
+  // const [isDeleting, setIsDeleting] = useState(false);
+
+  // Derived base cost for variant display is now handled via state
 
   const loadProducts = (page: number) => {
     setIsLoading(true);
@@ -66,7 +79,28 @@ export const ProductManagement = () => {
     categoryService.getAll()
       .then((cats) => setCategories(cats))
       .catch(() => { });
+    productService.getFamilies()
+      .then((fams) => setFamilies(fams))
+      .catch(() => { });
   }, []);
+
+  // Fetch UOMs when familyId changes (and we are adding a variant)
+  useEffect(() => {
+    if (!formData.isNewProduct && formData.familyId) {
+      productService.getAvailableUoms(Number(formData.familyId))
+        .then((res) => {
+           setAvailableUoms(res.availableUoms || []);
+           setBaseUnitCost(res.baseUnitCost ? String(res.baseUnitCost) : '0');
+        })
+        .catch(() => {
+          setAvailableUoms([]);
+          setBaseUnitCost('0');
+        });
+    } else {
+      setAvailableUoms([]);
+      setBaseUnitCost('0');
+    }
+  }, [formData.isNewProduct, formData.familyId]);
 
   useEffect(() => {
     if (!isSearching) {
@@ -94,10 +128,14 @@ export const ProductManagement = () => {
         const fullDetails = await productService.getById(product.productId);
         setEditingProduct(fullDetails);
         setFormData({
+          isNewProduct: false, // Editing an existing product
+          familyId: '', // Not strictly editable after creation usually, but keeping shape
+          uomCode: fullDetails.uomCode || '',
+          conversionFactor: fullDetails.conversionFactor ? String(fullDetails.conversionFactor) : '',
           productName: fullDetails.productName,
+          brand: (fullDetails as any).brand || '', // since brand wasn't explicitly added to ProductDetails before, but backend might return it if we request it soon.
           shortDescription: fullDetails.productShortDescription,
           productDescription: fullDetails.productDescription,
-          stockKeepingUnit: fullDetails.stockKeepingUnit || '',
           currency: 'GHS',
           sellingPrice: String(parsePrice(fullDetails.sellingPrice)),
           costPrice: String(parsePrice(fullDetails.costPrice)),
@@ -122,13 +160,27 @@ export const ProductManagement = () => {
 
   const buildFormData = (): FormData => {
     const fd = new FormData();
+    fd.append('isNewProduct', String(formData.isNewProduct));
+    
+    if (!formData.isNewProduct) {
+      if (formData.familyId) fd.append('familyId', formData.familyId);
+      if (formData.uomCode) fd.append('uomCode', formData.uomCode);
+      if (formData.conversionFactor) fd.append('conversionFactor', formData.conversionFactor);
+      // Backend auto-calculates cost for variants, but we send 0 to satisfy NotNull if needed
+      fd.append('costPrice', '0');
+    } else {
+      fd.append('costPrice', formData.costPrice);
+    }
+
     fd.append('productName', formData.productName);
+    if (formData.isNewProduct) {
+      fd.append('brand', formData.brand);
+      if (formData.size) fd.append('size', formData.size);
+    }
     fd.append('shortDescription', formData.shortDescription);
     fd.append('productDescription', formData.productDescription);
-    if (formData.stockKeepingUnit) fd.append('stockKeepingUnit', formData.stockKeepingUnit);
     fd.append('currency', formData.currency);
     fd.append('sellingPrice', formData.sellingPrice);
-    fd.append('costPrice', formData.costPrice);
     fd.append('stockQuantity', formData.stockQuantity);
     if (formData.lowStockThreshold) fd.append('lowStockThreshold', formData.lowStockThreshold);
     fd.append('categoryId', formData.categoryId);
@@ -181,30 +233,30 @@ export const ProductManagement = () => {
     }
   };
 
-  const handleDeleteClick = (product: ProductListing) => {
-    setProductToDelete(product);
-  };
+  // const handleDeleteClick = (product: ProductListing) => {
+  //   setProductToDelete(product);
+  // };
 
-  const confirmDelete = async () => {
-    if (!productToDelete) return;
-    setIsDeleting(true);
-    try {
-      await productService.delete(productToDelete.productId);
-      toast.success('Product deleted');
-      // If last item on page, go back one page; otherwise reload current page
-      const nextPage = products.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage;
-      if (nextPage !== currentPage) {
-        setCurrentPage(nextPage);
-      } else {
-        loadProducts(currentPage);
-      }
-    } catch (err: any) {
-      toast.error(extractErrorMessage(err, 'Failed to delete product'));
-    } finally {
-      setIsDeleting(false);
-      setProductToDelete(null);
-    }
-  };
+  // const confirmDelete = async () => {
+  //   if (!productToDelete) return;
+  //   setIsDeleting(true);
+  //   try {
+  //     await productService.delete(productToDelete.productId);
+  //     toast.success('Product deleted');
+  //     // If last item on page, go back one page; otherwise reload current page
+  //     const nextPage = products.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage;
+  //     if (nextPage !== currentPage) {
+  //       setCurrentPage(nextPage);
+  //     } else {
+  //       loadProducts(currentPage);
+  //     }
+  //   } catch (err: any) {
+  //     toast.error(extractErrorMessage(err, 'Failed to delete product'));
+  //   } finally {
+  //     setIsDeleting(false);
+  //     setProductToDelete(null);
+  //   }
+  // };
 
   const setField = (key: keyof typeof emptyForm, value: any) =>
     setFormData((prev) => ({ ...prev, [key]: value }));
@@ -213,12 +265,19 @@ export const ProductManagement = () => {
     {
       header: 'Product',
       accessor: (p: ProductListing) => (
-        <div className="flex items-center gap-3">
-          {p.productImageUrl && (
+        <div 
+          className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => navigate(`/admin/products/${p.productId}`)}
+        >
+          {p.productImageUrl ? (
             <img src={p.productImageUrl} className="h-10 w-10 rounded-lg object-cover" />
+          ) : (
+            <div className="h-10 w-10 rounded-lg bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-400">
+              <Box className="h-5 w-5 opacity-50" />
+            </div>
           )}
           <div>
-            <p className="font-semibold dark:text-white">{p.productName}</p>
+            <p className="font-semibold dark:text-white group-hover:text-accent transition-colors">{p.productName}</p>
           </div>
         </div>
       ),
@@ -237,7 +296,7 @@ export const ProductManagement = () => {
         columns={columns}
         onAdd={() => openModal()}
         onEdit={(p) => openModal(p)}
-        onDelete={handleDeleteClick as any}
+        // onDelete={handleDeleteClick as any} // Temporarily disabled: products cannot be deleted once added
         isLoading={isLoading}
         searchPlaceholder="Search products..."
         onSearch={(q) => setSearchQuery(q)}
@@ -251,8 +310,103 @@ export const ProductManagement = () => {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}
         title={editingProduct ? 'Edit Product' : 'Add New Product'}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input label="Product Name" value={formData.productName}
-            onChange={(e) => setField('productName', e.target.value)} required />
+          
+          {!editingProduct && (
+            <div className="flex gap-6 mb-4">
+               <label className="flex items-center gap-2 cursor-pointer">
+                 <input 
+                   type="radio" 
+                   name="productFlow"
+                   checked={formData.isNewProduct} 
+                   onChange={() => {
+                     setFormData(prev => ({...prev, isNewProduct: true, familyId: '', uomCode: '', conversionFactor: ''}));
+                   }}
+                   className="w-4 h-4 text-accent bg-gray-100 border-gray-300 focus:ring-accent"
+                 />
+                 <span className="text-sm font-medium text-gray-900 dark:text-gray-300">Create New Product Family</span>
+               </label>
+               <label className="flex items-center gap-2 cursor-pointer">
+                 <input 
+                   type="radio" 
+                   name="productFlow"
+                   checked={!formData.isNewProduct} 
+                   onChange={() => setField('isNewProduct', false)}
+                   className="w-4 h-4 text-accent bg-gray-100 border-gray-300 focus:ring-accent"
+                 />
+                 <span className="text-sm font-medium text-gray-900 dark:text-gray-300">Add Variant to Family</span>
+               </label>
+            </div>
+          )}
+
+          {!formData.isNewProduct && !editingProduct && (
+            <div className="p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-xl mb-4 space-y-4 border border-gray-100 dark:border-zinc-700">
+               <div className="grid grid-cols-2 gap-4">
+                 <div>
+                   <label className="block text-xs font-bold uppercase tracking-widest text-[#999999] mb-2">
+                     Product Family
+                   </label>
+                   <Dropdown
+                     value={formData.familyId}
+                     onChange={(val) => setField('familyId', val)}
+                     options={[
+                       { label: 'Select Family...', value: '' },
+                       ...families.map((f) => ({ label: `${f.brand} - (${f.familyCode})`, value: String(f.id) })),
+                     ]}
+                   />
+                 </div>
+                 <div>
+                   <label className="block text-xs font-bold uppercase tracking-widest text-[#999999] mb-2">
+                     Unit of Measure (UOM)
+                   </label>
+                   <Dropdown
+                     value={formData.uomCode}
+                     onChange={(val) => {
+                       setField('uomCode', val);
+                       // Auto-set standard conversion factors if matched
+                       if (val === 'DOZEN') setField('conversionFactor', '12');
+                       else if (val === 'PAIR') setField('conversionFactor', '2');
+                     }}
+                     options={[
+                       { label: 'Select UOM...', value: '' },
+                       ...availableUoms.map((u) => ({ label: `${u.name} (${u.code})`, value: u.code })),
+                     ]}
+                   />
+                 </div>
+               </div>
+               
+               {formData.familyId && (
+                 <div className="flex gap-4 items-end">
+                   <div className="flex-1">
+                     <Input label="Conversion Factor" type="number" value={formData.conversionFactor}
+                       onChange={(e) => setField('conversionFactor', e.target.value)} required placeholder="e.g. 12" />
+                   </div>
+                   <div className="flex-1 pb-3">
+                     <p className="text-sm text-gray-500 dark:text-gray-400">
+                       Base Unit Cost: <span className="font-semibold">{baseUnitCost} {formData.currency}</span>
+                     </p>
+                     <p className="text-xs text-gray-400 mt-1">Variant cost will be auto-calculated</p>
+                   </div>
+                 </div>
+               )}
+            </div>
+          )}
+          
+          <div className="grid grid-cols-2 gap-4">
+            <Input label="Product Name" value={formData.productName}
+              onChange={(e) => setField('productName', e.target.value)} required />
+            {formData.isNewProduct && (
+              <Input label="Brand Name" value={formData.brand}
+                onChange={(e) => setField('brand', e.target.value)} required />
+            )}
+          </div>
+          
+          {formData.isNewProduct && (
+            <div className="grid grid-cols-2 gap-4 border-b border-zinc-100 dark:border-zinc-800 pb-4">
+              <Input label="Size" value={formData.size} placeholder="e.g. 100ml, 50ml"
+                onChange={(e) => setField('size', e.target.value)} required />
+            </div>
+          )}
+
           <Input label="Short Description" value={formData.shortDescription}
             onChange={(e) => setField('shortDescription', e.target.value)} required />
           <div>
@@ -296,8 +450,11 @@ export const ProductManagement = () => {
           <div className="grid grid-cols-2 gap-4">
             <Input label="Selling Price" type="number" step="0.01" value={formData.sellingPrice}
               onChange={(e) => setField('sellingPrice', e.target.value)} required />
-            <Input label="Cost Price" type="number" step="0.01" value={formData.costPrice}
-              onChange={(e) => setField('costPrice', e.target.value)} required />
+            
+            {formData.isNewProduct && (
+              <Input label="Cost Price" type="number" step="0.01" value={formData.costPrice}
+                onChange={(e) => setField('costPrice', e.target.value)} required />
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -307,8 +464,7 @@ export const ProductManagement = () => {
               onChange={(e) => setField('lowStockThreshold', e.target.value)} />
           </div>
 
-          <Input label="SKU (optional)" value={formData.stockKeepingUnit}
-            onChange={(e) => setField('stockKeepingUnit', e.target.value)} />
+
 
           <div className="flex gap-6">
             <Checkbox
@@ -384,7 +540,7 @@ export const ProductManagement = () => {
         </form>
       </Modal>
 
-      <ConfirmModal
+      {/* <ConfirmModal
         isOpen={!!productToDelete}
         onClose={() => setProductToDelete(null)}
         onConfirm={confirmDelete}
@@ -396,7 +552,7 @@ export const ProductManagement = () => {
         }
         confirmLabel="Delete Product"
         isLoading={isDeleting}
-      />
+      /> */}
     </>
   );
 };

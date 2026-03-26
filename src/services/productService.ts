@@ -5,6 +5,10 @@ import type {
     ProductDetails,
     PageResponse,
     CustomApiResponse,
+    ProductFamilyResponse,
+    AvailableUomsResponse,
+    StockConversionRequest,
+    ConversionResponse,
 } from '../types';
 
 export const productService = {
@@ -91,5 +95,39 @@ export const productService = {
 
     delete: async (productId: number): Promise<void> => {
         await api.delete(`/product/delete/${productId}`);
+    },
+
+    getFamilies: async (): Promise<ProductFamilyResponse[]> => {
+        const res = await api.get<CustomApiResponse<ProductFamilyResponse[]>>(
+            '/admin/product-families'
+        );
+        return res.data.data;
+    },
+
+    getAvailableUoms: async (familyId: number): Promise<AvailableUomsResponse> => {
+        const res = await api.get<CustomApiResponse<AvailableUomsResponse>>(
+            `/admin/product-families/${familyId}/available-uoms`
+        );
+        return res.data.data;
+    },
+
+    forwardConversion: async (
+        data: StockConversionRequest
+    ): Promise<ConversionResponse> => {
+        const res = await api.post<CustomApiResponse<ConversionResponse>>(
+            '/admin/stock-conversions/forward',
+            data
+        );
+        return res.data.data;
+    },
+
+    reverseConversion: async (
+        data: StockConversionRequest
+    ): Promise<ConversionResponse> => {
+        const res = await api.post<CustomApiResponse<ConversionResponse>>(
+            '/admin/stock-conversions/reverse',
+            data
+        );
+        return res.data.data;
     },
 };

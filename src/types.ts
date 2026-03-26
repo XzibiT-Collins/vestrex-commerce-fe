@@ -144,20 +144,74 @@ export interface ProductDetails {
   isActive: boolean;
   isFeatured: boolean;
   slug: string;
+  familyCode?: string;
+  uomCode?: string;
+  conversionFactor?: number;
 }
 
-/** multipart/form-data for creating/updating a product */
+export interface ProductFamilyResponse {
+  id: number;
+  familyCode: string;
+  name: string;
+  brand: string;
+  baseUnitProductId: number;
+  baseUnitSku: string;
+}
+
+export interface UnitOfMeasureResponse {
+  id: number;
+  code: string;
+  name: string;
+}
+
+export interface AvailableUomsResponse {
+  familyCode?: string;
+  baseUnitCost?: string;
+  availableUoms: UnitOfMeasureResponse[];
+  takenUoms: string[];
+}
+
+export interface StockConversionRequest {
+  sourceProductId: number;
+  quantity: number;
+  targetProductId?: number;
+  notes?: string;
+}
+
+export interface ConversionResponse {
+  id: number;
+  conversionNumber: string;
+  direction: 'FORWARD' | 'REVERSE';
+  fromProductId: number;
+  fromProductName: string;
+  fromQuantity: number;
+  toProductId: number;
+  toProductName: string;
+  toQuantity: number;
+  fromCostValue: number;
+  toCostValue: number;
+  varianceAmount: number;
+  convertedBy: string;
+  notes?: string;
+  convertedAt: string;
+}
+
 export interface ProductRequest {
   productName: string;
+  brand: string;
+  size?: string;
   productDescription: string;
   shortDescription: string;
-  stockKeepingUnit?: string;
   currency: Currency;
   sellingPrice: number;
   costPrice: number;
   stockQuantity: number;
   lowStockThreshold?: number;
   categoryId: number;
+  familyId?: number;
+  uomCode?: string;
+  conversionFactor?: number;
+  isNewProduct?: boolean;
   isActive?: boolean;
   isFeatured?: boolean;
   productImage?: File;

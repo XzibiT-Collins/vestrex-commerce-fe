@@ -1,6 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
-import { Trash2, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { Trash2, Minus, Plus, ShoppingBag, Box } from 'lucide-react';
 import { Button } from '../components/Button';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -70,11 +70,17 @@ export const Cart = () => {
                 className="flex gap-4 bg-white dark:bg-zinc-900 rounded-2xl p-4 card-shadow"
               >
                 <div className="w-20 h-24 shrink-0 rounded-xl overflow-hidden bg-[#F5F5F5] dark:bg-zinc-800">
-                  <img
-                    src={item.imageUrl || `https://picsum.photos/seed/${item.productId}/400/500`}
-                    alt={item.name}
-                    className="w-full h-full object-cover"
-                  />
+                  {item.imageUrl ? (
+                    <img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-zinc-400">
+                      <Box className="h-6 w-6 opacity-50" />
+                    </div>
+                  )}
                 </div>
                 <div className="flex-1 flex flex-col gap-2">
                   <div className="flex justify-between">
