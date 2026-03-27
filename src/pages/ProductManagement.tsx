@@ -89,8 +89,8 @@ export const ProductManagement = () => {
     if (!formData.isNewProduct && formData.familyId) {
       productService.getAvailableUoms(Number(formData.familyId))
         .then((res) => {
-           setAvailableUoms(res.availableUoms || []);
-           setBaseUnitCost(res.baseUnitCost ? String(res.baseUnitCost) : '0');
+          setAvailableUoms(res.availableUoms || []);
+          setBaseUnitCost(res.baseUnitCost ? String(res.baseUnitCost) : '0');
         })
         .catch(() => {
           setAvailableUoms([]);
@@ -161,15 +161,20 @@ export const ProductManagement = () => {
   const buildFormData = (): FormData => {
     const fd = new FormData();
     fd.append('isNewProduct', String(formData.isNewProduct));
-    
+
     if (!formData.isNewProduct) {
       if (formData.familyId) fd.append('familyId', formData.familyId);
       if (formData.uomCode) fd.append('uomCode', formData.uomCode);
       if (formData.conversionFactor) fd.append('conversionFactor', formData.conversionFactor);
-      // Backend auto-calculates cost for variants, but we send 0 to satisfy NotNull if needed
-      fd.append('costPrice', '0');
+      // If editing an existing product, retain manual cost overrides. 
+      // If adding a new variant, cost is auto-computed (send 0).
+      if (editingProduct) {
+        fd.append('costPrice', String(formData.costPrice || '0'));
+      } else {
+        fd.append('costPrice', '0');
+      }
     } else {
-      fd.append('costPrice', formData.costPrice);
+      fd.append('costPrice', String(formData.costPrice || '0'));
     }
 
     fd.append('productName', formData.productName);
@@ -203,7 +208,8 @@ export const ProductManagement = () => {
           productShortDescription: updated.productShortDescription,
           productImageUrl: updated.productImageUrl,
           price: updated.sellingPrice, // Note: sellingPrice in details maps to price in listing
-          categoryName: updated.category?.categoryName || p.categoryName
+          categoryName: updated.category?.categoryName || p.categoryName,
+          isActive: updated.isActive
         } : p)));
         toast.success('Product updated');
       } else {
@@ -218,6 +224,7 @@ export const ProductManagement = () => {
           price: created.sellingPrice,
           stockQuantity: created.stockQuantity,
           isOutOfStock: created.isOutOfStock,
+          isActive: created.isActive,
           slug: created.slug
         };
         setProducts((prev) => [newListing, ...prev]);
@@ -265,7 +272,7 @@ export const ProductManagement = () => {
     {
       header: 'Product',
       accessor: (p: ProductListing) => (
-        <div 
+        <div
           className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={() => navigate(`/admin/products/${p.productId}`)}
         >
@@ -285,7 +292,18 @@ export const ProductManagement = () => {
     { header: 'Category', accessor: (p: ProductListing) => p.categoryName || '—' },
     { header: 'Price', accessor: (p: ProductListing) => p.price },
     { header: 'Stock', accessor: (p: ProductListing) => p.stockQuantity },
-    { header: 'Status', accessor: (p: ProductListing) => 'Active' }, // Default for listing
+    { 
+      header: 'Status', 
+      accessor: (p: ProductListing) => (
+        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
+          p.isActive 
+            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+            : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+        }`}>
+          {p.isActive ? 'Active' : 'Inactive'}
+        </span>
+      )
+    },
   ];
 
   return (
@@ -310,87 +328,87 @@ export const ProductManagement = () => {
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}
         title={editingProduct ? 'Edit Product' : 'Add New Product'}>
         <form onSubmit={handleSubmit} className="space-y-4">
-          
+
           {!editingProduct && (
             <div className="flex gap-6 mb-4">
-               <label className="flex items-center gap-2 cursor-pointer">
-                 <input 
-                   type="radio" 
-                   name="productFlow"
-                   checked={formData.isNewProduct} 
-                   onChange={() => {
-                     setFormData(prev => ({...prev, isNewProduct: true, familyId: '', uomCode: '', conversionFactor: ''}));
-                   }}
-                   className="w-4 h-4 text-accent bg-gray-100 border-gray-300 focus:ring-accent"
-                 />
-                 <span className="text-sm font-medium text-gray-900 dark:text-gray-300">Create New Product Family</span>
-               </label>
-               <label className="flex items-center gap-2 cursor-pointer">
-                 <input 
-                   type="radio" 
-                   name="productFlow"
-                   checked={!formData.isNewProduct} 
-                   onChange={() => setField('isNewProduct', false)}
-                   className="w-4 h-4 text-accent bg-gray-100 border-gray-300 focus:ring-accent"
-                 />
-                 <span className="text-sm font-medium text-gray-900 dark:text-gray-300">Add Variant to Family</span>
-               </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="productFlow"
+                  checked={formData.isNewProduct}
+                  onChange={() => {
+                    setFormData(prev => ({ ...prev, isNewProduct: true, familyId: '', uomCode: '', conversionFactor: '' }));
+                  }}
+                  className="w-4 h-4 text-accent bg-gray-100 border-gray-300 focus:ring-accent"
+                />
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-300">Create New Product Family</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="radio"
+                  name="productFlow"
+                  checked={!formData.isNewProduct}
+                  onChange={() => setField('isNewProduct', false)}
+                  className="w-4 h-4 text-accent bg-gray-100 border-gray-300 focus:ring-accent"
+                />
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-300">Add Variant to Family</span>
+              </label>
             </div>
           )}
 
           {!formData.isNewProduct && !editingProduct && (
             <div className="p-4 bg-gray-50 dark:bg-zinc-800/50 rounded-xl mb-4 space-y-4 border border-gray-100 dark:border-zinc-700">
-               <div className="grid grid-cols-2 gap-4">
-                 <div>
-                   <label className="block text-xs font-bold uppercase tracking-widest text-[#999999] mb-2">
-                     Product Family
-                   </label>
-                   <Dropdown
-                     value={formData.familyId}
-                     onChange={(val) => setField('familyId', val)}
-                     options={[
-                       { label: 'Select Family...', value: '' },
-                       ...families.map((f) => ({ label: `${f.brand} - (${f.familyCode})`, value: String(f.id) })),
-                     ]}
-                   />
-                 </div>
-                 <div>
-                   <label className="block text-xs font-bold uppercase tracking-widest text-[#999999] mb-2">
-                     Unit of Measure (UOM)
-                   </label>
-                   <Dropdown
-                     value={formData.uomCode}
-                     onChange={(val) => {
-                       setField('uomCode', val);
-                       // Auto-set standard conversion factors if matched
-                       if (val === 'DOZEN') setField('conversionFactor', '12');
-                       else if (val === 'PAIR') setField('conversionFactor', '2');
-                     }}
-                     options={[
-                       { label: 'Select UOM...', value: '' },
-                       ...availableUoms.map((u) => ({ label: `${u.name} (${u.code})`, value: u.code })),
-                     ]}
-                   />
-                 </div>
-               </div>
-               
-               {formData.familyId && (
-                 <div className="flex gap-4 items-end">
-                   <div className="flex-1">
-                     <Input label="Conversion Factor" type="number" value={formData.conversionFactor}
-                       onChange={(e) => setField('conversionFactor', e.target.value)} required placeholder="e.g. 12" />
-                   </div>
-                   <div className="flex-1 pb-3">
-                     <p className="text-sm text-gray-500 dark:text-gray-400">
-                       Base Unit Cost: <span className="font-semibold">{baseUnitCost} {formData.currency}</span>
-                     </p>
-                     <p className="text-xs text-gray-400 mt-1">Variant cost will be auto-calculated</p>
-                   </div>
-                 </div>
-               )}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-widest text-[#999999] mb-2">
+                    Product Family
+                  </label>
+                  <Dropdown
+                    value={formData.familyId}
+                    onChange={(val) => setField('familyId', val)}
+                    options={[
+                      { label: 'Select Family...', value: '' },
+                      ...families.map((f) => ({ label: `${f.brand} - (${f.familyCode})`, value: String(f.id) })),
+                    ]}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-widest text-[#999999] mb-2">
+                    Unit of Measure (UOM)
+                  </label>
+                  <Dropdown
+                    value={formData.uomCode}
+                    onChange={(val) => {
+                      setField('uomCode', val);
+                      // Auto-set standard conversion factors if matched
+                      if (val === 'DOZEN') setField('conversionFactor', '12');
+                      else if (val === 'PAIR') setField('conversionFactor', '2');
+                    }}
+                    options={[
+                      { label: 'Select UOM...', value: '' },
+                      ...availableUoms.map((u) => ({ label: `${u.name} (${u.code})`, value: u.code })),
+                    ]}
+                  />
+                </div>
+              </div>
+
+              {formData.familyId && (
+                <div className="flex gap-4 items-end">
+                  <div className="flex-1">
+                    <Input label="Conversion Factor" type="number" value={formData.conversionFactor}
+                      onChange={(e) => setField('conversionFactor', e.target.value)} required placeholder="e.g. 12" />
+                  </div>
+                  <div className="flex-1 pb-3">
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Base Unit Cost: <span className="font-semibold">{baseUnitCost} {formData.currency}</span>
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">Variant cost will be auto-calculated</p>
+                  </div>
+                </div>
+              )}
             </div>
           )}
-          
+
           <div className="grid grid-cols-2 gap-4">
             <Input label="Product Name" value={formData.productName}
               onChange={(e) => setField('productName', e.target.value)} required />
@@ -399,7 +417,7 @@ export const ProductManagement = () => {
                 onChange={(e) => setField('brand', e.target.value)} required />
             )}
           </div>
-          
+
           {formData.isNewProduct && (
             <div className="grid grid-cols-2 gap-4 border-b border-zinc-100 dark:border-zinc-800 pb-4">
               <Input label="Size" value={formData.size} placeholder="e.g. 100ml, 50ml"
@@ -450,8 +468,8 @@ export const ProductManagement = () => {
           <div className="grid grid-cols-2 gap-4">
             <Input label="Selling Price" type="number" step="0.01" value={formData.sellingPrice}
               onChange={(e) => setField('sellingPrice', e.target.value)} required />
-            
-            {formData.isNewProduct && (
+
+            {(formData.isNewProduct || !!editingProduct) && (
               <Input label="Cost Price" type="number" step="0.01" value={formData.costPrice}
                 onChange={(e) => setField('costPrice', e.target.value)} required />
             )}

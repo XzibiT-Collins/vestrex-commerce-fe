@@ -59,14 +59,19 @@ export const ProductListingPage = () => {
       }
     })();
 
-    productService
-      .search({
-        categoryId: selectedCategory ? Number(selectedCategory) : undefined,
-        searchTerm: debouncedSearchQuery || undefined,
-        page: currentPage - 1,
-        size: PAGE_SIZE,
-        sort: backendSort,
-      })
+    const isInitialLoad = !selectedCategory && !debouncedSearchQuery && sortBy === 'default';
+
+    const fetchPromise = isInitialLoad
+      ? productService.getListings(currentPage - 1, PAGE_SIZE)
+      : productService.search({
+          categoryId: selectedCategory ? Number(selectedCategory) : undefined,
+          searchTerm: debouncedSearchQuery || undefined,
+          page: currentPage - 1,
+          size: PAGE_SIZE,
+          sort: backendSort,
+        });
+
+    fetchPromise
       .then((res) => {
         if (res && Array.isArray(res.content)) {
           setProducts(res.content);

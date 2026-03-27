@@ -8,7 +8,7 @@ import { Input } from '../components/Input';
 import { Dropdown } from '../components/Dropdown';
 import { Modal } from '../components/Modal';
 import { productService } from '../services/productService';
-import type { ProductDetails, ConversionResponse } from '../types';
+import type { ProductDetails, ConversionResponse, ProductVariantSummaryResponse } from '../types';
 import toast from 'react-hot-toast';
 
 export const AdminProductDetails = () => {
@@ -23,7 +23,7 @@ export const AdminProductDetails = () => {
   const [conversionTab, setConversionTab] = useState<'FORWARD' | 'REVERSE'>('FORWARD');
   const [conversionQuantity, setConversionQuantity] = useState('');
   const [targetProductId, setTargetProductId] = useState('');
-  const [families, setFamilies] = useState<any[]>([]);
+  const [targetVariants, setTargetVariants] = useState<ProductVariantSummaryResponse[]>([]);
   const [isConverting, setIsConverting] = useState(false);
   const [conversionSummary, setConversionSummary] = useState<ConversionResponse | null>(null);
 
@@ -45,10 +45,10 @@ export const AdminProductDetails = () => {
   }, [productId]);
 
   useEffect(() => {
-    if (isConversionModalOpen && conversionTab === 'REVERSE' && families.length === 0) {
-      productService.getFamilies().then(setFamilies).catch(() => {});
+    if (isConversionModalOpen && conversionTab === 'REVERSE' && targetVariants.length === 0 && product) {
+      productService.getReverseConversionTargetVariants(product.productId).then(setTargetVariants).catch(() => {});
     }
-  }, [isConversionModalOpen, conversionTab]);
+  }, [isConversionModalOpen, conversionTab, product]);
 
   const handleConversion = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,10 +127,10 @@ export const AdminProductDetails = () => {
                   onChange={(val) => setTargetProductId(val)}
                   options={[
                     { label: 'Select Target Variant...', value: '' },
-                    ...families.flatMap(f => (f.variants || f.products || []).filter((v: any) => v.productId !== product?.productId).map((v: any) => ({
-                      label: `${v.productName || v.sku || v.stockKeepingUnit} (${v.uomCode || v.uom})`,
-                      value: String(v.productId)
-                    })))
+                    ...targetVariants.map((v) => ({
+                      label: `${v.variantName} (${v.variantSku})`,
+                      value: String(v.variantId)
+                    }))
                   ]}
                 />
                 <p className="text-xs text-gray-500 mt-2">Target must be a variant in the same family as this base unit.</p>

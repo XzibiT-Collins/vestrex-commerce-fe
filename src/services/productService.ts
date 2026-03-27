@@ -9,6 +9,7 @@ import type {
     AvailableUomsResponse,
     StockConversionRequest,
     ConversionResponse,
+    ProductVariantSummaryResponse,
 } from '../types';
 
 export const productService = {
@@ -127,6 +128,15 @@ export const productService = {
         const res = await api.post<CustomApiResponse<ConversionResponse>>(
             '/admin/stock-conversions/reverse',
             data
+        );
+        return res.data.data;
+    },
+
+    getReverseConversionTargetVariants: async (
+        sourceProductId: number
+    ): Promise<ProductVariantSummaryResponse[]> => {
+        const res = await api.get<CustomApiResponse<ProductVariantSummaryResponse[]>>(
+            `/admin/stock-conversions/reverse/${sourceProductId}/variants`
         );
         return res.data.data;
     },

@@ -109,6 +109,7 @@ export interface ProductListing {
   price: string;
   stockQuantity: number;
   isOutOfStock: boolean;
+  isActive: boolean;
   slug: string;
 }
 
@@ -194,6 +195,12 @@ export interface ConversionResponse {
   convertedBy: string;
   notes?: string;
   convertedAt: string;
+}
+
+export interface ProductVariantSummaryResponse {
+  variantId: number;
+  variantSku: string;
+  variantName: string;
 }
 
 export interface ProductRequest {
