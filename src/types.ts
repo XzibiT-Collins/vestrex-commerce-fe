@@ -548,6 +548,82 @@ export interface Address {
   isActive?: boolean;
 }
 
+// ─── Walk-In Orders ──────────────────────────────────────────────────────────
+
+export enum WalkInPaymentMethod {
+  CASH = 'CASH',
+  MOBILE_MONEY = 'MOBILE_MONEY',
+  CARD = 'CARD',
+  SPLIT = 'SPLIT',
+}
+
+export enum WalkInOrderStatus {
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+  REFUNDED = 'REFUNDED',
+}
+
+export enum WalkInDiscountType {
+  PERCENTAGE = 'PERCENTAGE',
+  FLAT = 'FLAT',
+}
+
+export interface WalkInCustomerRequest {
+  name?: string;
+  phone?: string;
+  email?: string;
+}
+
+export interface WalkInOrderItemRequest {
+  productId: number;
+  quantity: number;
+}
+
+export interface WalkInOrderRequest {
+  registeredUserId?: number;
+  walkInCustomer?: WalkInCustomerRequest;
+  items: WalkInOrderItemRequest[];
+  discountType?: WalkInDiscountType;
+  discountValue?: number;
+  paymentMethod: WalkInPaymentMethod;
+  amountPaid: number;
+  splitCashAmount?: number;
+  splitMobileAmount?: number;
+}
+
+export interface WalkInOrderItemResponse {
+  productName: string;
+  sku: string;
+  quantity: number;
+  unitPrice: string;
+  totalPrice: string;
+}
+
+export interface WalkInOrderResponse {
+  orderNumber: string;
+  customerName: string;
+  customerPhone?: string;
+  processedBy: string;
+  paymentMethod: WalkInPaymentMethod;
+  status: WalkInOrderStatus;
+  subtotal: string;
+  discountAmount: string;
+  totalTaxAmount: string;
+  totalAmount: string;
+  amountPaid: string;
+  changeGiven: string;
+  receiptPrinted: boolean;
+  createdAt: string;
+  items: WalkInOrderItemResponse[];
+}
+
+export interface CustomerSearchResponse {
+  id: number;
+  fullName: string;
+  email: string;
+  phone?: string;
+}
+
 // ─── Accounting & Bookkeeping ──────────────────────────────────────────────────
 
 export enum EntryType {

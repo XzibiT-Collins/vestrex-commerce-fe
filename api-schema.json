@@ -798,6 +798,36 @@
         }
       }
     },
+    "/api/v1/admin/walk-in/order": {
+      "post": {
+        "tags": [
+          "walk-in-order-controller"
+        ],
+        "operationId": "placeWalkInOrder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WalkInOrderRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseWalkInOrderResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/stock-conversions/reverse": {
       "post": {
         "tags": [
@@ -874,6 +904,36 @@
           },
           "required": true
         },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/walk-in/orders/{orderNumber}/receipt-printed": {
+      "patch": {
+        "tags": [
+          "walk-in-order-controller"
+        ],
+        "operationId": "markReceiptPrinted",
+        "parameters": [
+          {
+            "name": "orderNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK",
@@ -1469,6 +1529,105 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/CustomApiResponseAuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/walk-in/orders": {
+      "get": {
+        "tags": [
+          "walk-in-order-controller"
+        ],
+        "operationId": "getWalkInOrders",
+        "parameters": [
+          {
+            "name": "date",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "pageable",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponsePageResponseWalkInOrderResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/walk-in/orders/{orderNumber}": {
+      "get": {
+        "tags": [
+          "walk-in-order-controller"
+        ],
+        "operationId": "getWalkInOrder",
+        "parameters": [
+          {
+            "name": "orderNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseWalkInOrderResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/walk-in/customers/search": {
+      "get": {
+        "tags": [
+          "walk-in-order-controller"
+        ],
+        "operationId": "searchCustomers",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseListCustomerSearchResponse"
                 }
               }
             }
@@ -3092,6 +3251,196 @@
           }
         }
       },
+      "WalkInCustomerRequest": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          }
+        }
+      },
+      "WalkInOrderItemRequest": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "productId",
+          "quantity"
+        ]
+      },
+      "WalkInOrderRequest": {
+        "type": "object",
+        "properties": {
+          "registeredUserId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "walkInCustomer": {
+            "$ref": "#/components/schemas/WalkInCustomerRequest"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WalkInOrderItemRequest"
+            },
+            "minItems": 1
+          },
+          "discountType": {
+            "type": "string",
+            "enum": [
+              "PERCENTAGE",
+              "FLAT"
+            ]
+          },
+          "discountValue": {
+            "type": "number"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "CASH",
+              "MOBILE_MONEY",
+              "CARD",
+              "SPLIT"
+            ]
+          },
+          "amountPaid": {
+            "type": "number"
+          },
+          "splitCashAmount": {
+            "type": "number"
+          },
+          "splitMobileAmount": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "amountPaid",
+          "items",
+          "paymentMethod"
+        ]
+      },
+      "CustomApiResponseWalkInOrderResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/WalkInOrderResponse"
+          }
+        }
+      },
+      "WalkInOrderItemResponse": {
+        "type": "object",
+        "properties": {
+          "productName": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitPrice": {
+            "type": "string"
+          },
+          "totalPrice": {
+            "type": "string"
+          }
+        }
+      },
+      "WalkInOrderResponse": {
+        "type": "object",
+        "properties": {
+          "orderNumber": {
+            "type": "string"
+          },
+          "customerName": {
+            "type": "string"
+          },
+          "customerPhone": {
+            "type": "string"
+          },
+          "processedBy": {
+            "type": "string"
+          },
+          "discountType": {
+            "type": "string",
+            "enum": [
+              "PERCENTAGE",
+              "FLAT"
+            ]
+          },
+          "discountValue": {
+            "type": "string"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "enum": [
+              "CASH",
+              "MOBILE_MONEY",
+              "CARD",
+              "SPLIT"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "COMPLETED",
+              "CANCELLED",
+              "REFUNDED"
+            ]
+          },
+          "subtotal": {
+            "type": "string"
+          },
+          "discountAmount": {
+            "type": "string"
+          },
+          "totalTaxAmount": {
+            "type": "string"
+          },
+          "totalAmount": {
+            "type": "string"
+          },
+          "amountPaid": {
+            "type": "string"
+          },
+          "changeGiven": {
+            "type": "string"
+          },
+          "receiptPrinted": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WalkInOrderItemResponse"
+            }
+          }
+        }
+      },
       "StockConversionRequest": {
         "type": "object",
         "properties": {
@@ -3195,6 +3544,7 @@
             "type": "string",
             "enum": [
               "CASH",
+              "MOBILE_MONEY",
               "COGS",
               "INVENTORY",
               "SALES_REVENUE",
@@ -3213,7 +3563,8 @@
               "LOANS_PAYABLE",
               "INVESTMENT_INCOME",
               "GENERAL_EXPENSE",
-              "INVENTORY_VARIANCE"
+              "INVENTORY_VARIANCE",
+              "INVENTORY_REVALUATION"
             ]
           },
           "entryType": {
@@ -3251,9 +3602,11 @@
               "DISCOUNT",
               "TAX_COLLECTION",
               "INVENTORY",
+              "WALK_IN_SALE",
               "INVENTORY_PURCHASE",
               "INVENTORY_ADJUSTMENT",
-              "ADJUSTMENT"
+              "ADJUSTMENT",
+              "INVENTORY_REVALUATION"
             ]
           },
           "lines": {
@@ -3437,6 +3790,9 @@
             "type": "string"
           },
           "isOutOfStock": {
+            "type": "boolean"
+          },
+          "isActive": {
             "type": "boolean"
           },
           "slug": {
@@ -3651,6 +4007,89 @@
           }
         }
       },
+      "CustomApiResponsePageResponseWalkInOrderResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseWalkInOrderResponse"
+          }
+        }
+      },
+      "PageResponseWalkInOrderResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WalkInOrderResponse"
+            }
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isFirst": {
+            "type": "boolean"
+          },
+          "isLast": {
+            "type": "boolean"
+          },
+          "isEmpty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CustomApiResponseListCustomerSearchResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomerSearchResponse"
+            }
+          }
+        }
+      },
+      "CustomerSearchResponse": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          }
+        }
+      },
       "CustomApiResponseListProductVariantSummaryResponse": {
         "type": "object",
         "properties": {
@@ -3833,12 +4272,12 @@
           "email": {
             "type": "string"
           },
+          "totalAmountSpent": {
+            "type": "number"
+          },
           "totalOrders": {
             "type": "integer",
             "format": "int64"
-          },
-          "totalAmountSpent": {
-            "type": "number"
           }
         }
       },
@@ -3908,6 +4347,9 @@
       "LowStockProduct": {
         "type": "object",
         "properties": {
+          "productName": {
+            "type": "string"
+          },
           "id": {
             "type": "integer",
             "format": "int64"
@@ -3915,9 +4357,6 @@
           "stockQuantity": {
             "type": "integer",
             "format": "int32"
-          },
-          "productName": {
-            "type": "string"
           },
           "productImage": {
             "type": "string"
@@ -4006,15 +4445,15 @@
       "TopCompositionMetric": {
         "type": "object",
         "properties": {
-          "totalRevenue": {
-            "type": "number"
+          "productName": {
+            "type": "string"
           },
           "productId": {
             "type": "integer",
             "format": "int64"
           },
-          "productName": {
-            "type": "string"
+          "totalRevenue": {
+            "type": "number"
           },
           "totalSold": {
             "type": "integer",
@@ -4315,9 +4754,11 @@
               "DISCOUNT",
               "TAX_COLLECTION",
               "INVENTORY",
+              "WALK_IN_SALE",
               "INVENTORY_PURCHASE",
               "INVENTORY_ADJUSTMENT",
-              "ADJUSTMENT"
+              "ADJUSTMENT",
+              "INVENTORY_REVALUATION"
             ]
           },
           "referenceType": {
@@ -4367,6 +4808,7 @@
             "type": "string",
             "enum": [
               "CASH",
+              "MOBILE_MONEY",
               "COGS",
               "INVENTORY",
               "SALES_REVENUE",
@@ -4385,7 +4827,8 @@
               "LOANS_PAYABLE",
               "INVESTMENT_INCOME",
               "GENERAL_EXPENSE",
-              "INVENTORY_VARIANCE"
+              "INVENTORY_VARIANCE",
+              "INVENTORY_REVALUATION"
             ]
           },
           "balance": {

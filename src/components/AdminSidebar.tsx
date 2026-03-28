@@ -25,6 +25,7 @@ const menuItems = [
   { icon: Package, label: 'Products', path: '/admin/products' },
   { icon: Tag, label: 'Categories', path: '/admin/categories' },
   { icon: ShoppingCart, label: 'Orders', path: '/admin/orders' },
+  { icon: ShoppingCart, label: 'Walk-In Orders', path: '/admin/walk-in' },
   { icon: Ticket, label: 'Coupons', path: '/admin/coupons' },
   { icon: Users, label: 'Customers', path: '/admin/customers' },
   { icon: Receipt, label: 'Taxes', path: '/admin/taxes' },

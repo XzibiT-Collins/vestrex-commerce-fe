@@ -34,6 +34,9 @@ import { TaxManagement } from './pages/TaxManagement';
 import { CustomerManagement } from './pages/CustomerManagement';
 import { CustomerDetails } from './pages/CustomerDetails';
 import { CustomerProfile } from './pages/CustomerProfile';
+import { WalkInOrderList } from './pages/WalkInOrderList';
+import { WalkInOrderCreation } from './pages/WalkInOrderCreation';
+import { WalkInOrderDetail } from './pages/WalkInOrderDetail';
 import { Accounting } from './pages/Accounting';
 import { Bookkeeping } from './pages/Bookkeeping';
 import { CartDrawer } from './components/CartDrawer';
@@ -80,6 +83,9 @@ export default function App() {
                   <Route path="/admin/categories" element={<CategoryManagement />} />
                   <Route path="/admin/orders" element={<OrderManagement />} />
                   <Route path="/admin/orders/:orderNumber" element={<OrderDetail />} />
+                  <Route path="/admin/walk-in" element={<WalkInOrderList />} />
+                  <Route path="/admin/walk-in/new" element={<WalkInOrderCreation />} />
+                  <Route path="/admin/walk-in/:orderNumber" element={<WalkInOrderDetail />} />
                   <Route path="/admin/coupons" element={<CouponManagement />} />
                   <Route path="/admin/taxes" element={<TaxManagement />} />
                   <Route path="/admin/customers" element={<CustomerManagement />} />
