@@ -12,6 +12,7 @@ import { deliveryDetailService } from '../services/deliveryDetailService';
 import { orderService } from '../services/orderService';
 import { Dropdown } from '../components/Dropdown';
 import { Checkbox } from '../components/Checkbox';
+import { AddressAutocomplete } from '../components/AddressAutocomplete';
 import type {
   DeliveryDetailResponse,
   DeliveryDetailRequest,
@@ -399,7 +400,19 @@ export const CustomerProfile = () => {
             {field('phoneNumber', 'Phone Number', '+233 ...', true)}
             {field('alternatePhoneNumber', 'Alt. Phone', '+233 ...')}
           </div>
-          {field('addressLine1', 'Address Line 1', '123 Main St.', true)}
+          <AddressAutocomplete
+            label="Address Line 1"
+            defaultValue={addressForm.addressLine1}
+            onAddressSelect={(address) => {
+              setAddressForm({
+                ...addressForm,
+                addressLine1: address.addressLine1,
+                city: address.city,
+                region: address.region,
+              });
+            }}
+            required
+          />
           {field('addressLine2', 'Address Line 2 (optional)', 'Apt, Suite...')}
           <div className="grid grid-cols-2 gap-4">
             {field('city', 'City', 'Accra', true)}

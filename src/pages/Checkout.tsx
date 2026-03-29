@@ -14,6 +14,7 @@ import toast from 'react-hot-toast';
 import { extractErrorMessage } from '../utils';
 import { Dropdown } from '../components/Dropdown';
 import { Checkbox } from '../components/Checkbox';
+import { AddressAutocomplete } from '../components/AddressAutocomplete';
 
 const emptyAddress: DeliveryDetailRequest = {
   recipientName: '',
@@ -247,7 +248,19 @@ export const Checkout = () => {
             {field('phoneNumber', 'Phone Number', '+233 ...', true)}
             {field('alternatePhoneNumber', 'Alt. Phone (optional)', '+233 ...')}
           </div>
-          {field('addressLine1', 'Address Line 1', '123 Main Street', true)}
+          <AddressAutocomplete
+            label="Address Line 1"
+            defaultValue={formData.addressLine1}
+            onAddressSelect={(address) => {
+              setFormData({
+                ...formData,
+                addressLine1: address.addressLine1,
+                city: address.city,
+                region: address.region,
+              });
+            }}
+            required
+          />
           {field('addressLine2', 'Address Line 2 (optional)', 'Apt, Suite, etc.')}
           <div className="grid grid-cols-2 gap-4">
             {field('city', 'City', 'Accra', true)}

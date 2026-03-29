@@ -1,0 +1,147 @@
+import React, { useEffect, useRef } from 'react';
+import usePlacesAutocomplete, {
+  getGeocode,
+  getLatLng,
+} from 'use-places-autocomplete';
+import { cn } from '../utils';
+
+interface AddressAutocompleteProps {
+  label?: string;
+  error?: string;
+  placeholder?: string;
+  defaultValue?: string;
+  onAddressSelect: (address: {
+    addressLine1: string;
+    city: string;
+    region: string;
+  }) => void;
+  className?: string;
+  required?: boolean;
+}
+
+export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
+  label,
+  error,
+  placeholder = 'Start typing your address...',
+  defaultValue = '',
+  onAddressSelect,
+  className,
+  required = false,
+}) => {
+  const {
+    ready,
+    value,
+    suggestions: { status, data },
+    setValue,
+    clearSuggestions,
+  } = usePlacesAutocomplete({
+    requestOptions: {
+      /* Define search scope here if needed, e.g., country: 'gh' */
+    },
+    debounce: 300,
+  });
+
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (defaultValue) {
+      setValue(defaultValue, false);
+    }
+  }, [defaultValue, setValue]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        clearSuggestions();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [clearSuggestions]);
+
+  const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue(e.target.value);
+  };
+
+  const handleSelect = ({ description }: { description: string }) => () => {
+    setValue(description, false);
+    clearSuggestions();
+
+    getGeocode({ address: description }).then((results) => {
+      const components = results[0].address_components;
+      
+      let streetNumber = '';
+      let route = '';
+      let city = '';
+      let region = '';
+
+      components.forEach((component) => {
+        const types = component.types;
+        if (types.includes('street_number')) {
+          streetNumber = component.long_name;
+        }
+        if (types.includes('route')) {
+          route = component.long_name;
+        }
+        if (types.includes('locality')) {
+          city = component.long_name;
+        } else if (types.includes('administrative_area_level_2') && !city) {
+          city = component.long_name;
+        }
+        if (types.includes('administrative_area_level_1')) {
+          region = component.long_name;
+        }
+      });
+
+      onAddressSelect({
+        addressLine1: `${streetNumber} ${route}`.trim() || description.split(',')[0],
+        city,
+        region,
+      });
+    });
+  };
+
+  return (
+    <div className="w-full space-y-1.5 relative" ref={dropdownRef}>
+      {label && (
+        <label className="text-xs font-semibold uppercase tracking-wider text-[#666666] dark:text-zinc-400">
+          {label}
+        </label>
+      )}
+      <input
+        value={value}
+        onChange={handleInput}
+        disabled={!ready}
+        placeholder={placeholder}
+        required={required}
+        className={cn(
+          'flex w-full rounded-xl border border-[#E5E5E5] bg-white px-4 py-2.5 text-sm transition-all placeholder:text-[#999999] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/5 focus:border-[#1A1A1A] dark:bg-zinc-900 dark:border-zinc-800 dark:text-white dark:focus:border-accent dark:focus:ring-accent/5',
+          error && 'border-red-500 focus:border-red-500 focus:ring-red-500/5',
+          className
+        )}
+      />
+      {status === 'OK' && (
+        <ul className="absolute z-[100] w-full bg-white dark:bg-zinc-900 border border-[#E5E5E5] dark:border-zinc-800 rounded-xl mt-1 shadow-xl max-h-60 overflow-auto py-2">
+          {data.map((suggestion) => {
+            const {
+              place_id,
+              structured_formatting: { main_text, secondary_text },
+            } = suggestion;
+
+            return (
+              <li
+                key={place_id}
+                onClick={handleSelect(suggestion)}
+                className="px-4 py-2.5 hover:bg-[#F5F5F5] dark:hover:bg-zinc-800 cursor-pointer transition-colors"
+              >
+                <p className="text-sm font-bold dark:text-white">{main_text}</p>
+                <p className="text-[10px] text-[#999999] dark:text-zinc-500 truncate">{secondary_text}</p>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      {error && <p className="text-xs text-red-500">{error}</p>}
+    </div>
+  );
+};
