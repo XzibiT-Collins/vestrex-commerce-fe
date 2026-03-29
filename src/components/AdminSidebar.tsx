@@ -13,7 +13,8 @@ import {
   X,
   Receipt,
   Calculator,
-  BookOpen
+  BookOpen,
+  Settings
 } from 'lucide-react';
 import { cn } from '../utils';
 import { useState } from 'react';
@@ -31,6 +32,7 @@ const menuItems = [
   { icon: Receipt, label: 'Taxes', path: '/admin/taxes' },
   { icon: Calculator, label: 'Accounting', path: '/admin/accounting' },
   { icon: BookOpen, label: 'Bookkeeping', path: '/admin/bookkeeping' },
+  { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];
 
 export const AdminSidebar = () => {

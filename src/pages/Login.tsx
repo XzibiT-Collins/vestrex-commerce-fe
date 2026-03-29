@@ -22,9 +22,20 @@ export const Login = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      await login(email, password);
-      toast.success('Welcome back!');
-      navigate(from, { replace: true });
+      const res = await login(email, password);
+      if (res.requiresOtp) {
+        toast.success('Please verify with OTP');
+        navigate('/verify-otp', { 
+          state: { 
+            email: res.email || email, 
+            challengeToken: res.challengeToken,
+            isLoginOtp: true 
+          } 
+        });
+      } else {
+        toast.success('Welcome back!');
+        navigate(from, { replace: true });
+      }
     } catch (err: any) {
       const message =
         err.response?.data?.description || 'Invalid email or password';

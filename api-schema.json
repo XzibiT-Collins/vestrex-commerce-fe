@@ -601,6 +601,36 @@
         }
       }
     },
+    "/api/v1/auth/verify-login-otp": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "operationId": "verifyLoginOtp",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginOtpVerificationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseAuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/auth/reset-password": {
       "post": {
         "tags": [
@@ -653,6 +683,36 @@
             "application/json": {
               "schema": {
                 "$ref": "#/components/schemas/EmailRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/resend-login-otp": {
+      "post": {
+        "tags": [
+          "auth-controller"
+        ],
+        "operationId": "resendLoginOtp",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginOtpResendRequest"
               }
             }
           },
@@ -760,7 +820,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/CustomApiResponseAuthResponse"
+                  "$ref": "#/components/schemas/CustomApiResponseLoginResponse"
                 }
               }
             }
@@ -941,6 +1001,80 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/CustomApiResponseVoid"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/feature-flags/{featureKey}": {
+      "get": {
+        "tags": [
+          "feature-flag-controller"
+        ],
+        "operationId": "getFlag",
+        "parameters": [
+          {
+            "name": "featureKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "LOGIN_OTP"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseFeatureFlagResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "patch": {
+        "tags": [
+          "feature-flag-controller"
+        ],
+        "operationId": "updateFlag",
+        "parameters": [
+          {
+            "name": "featureKey",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "LOGIN_OTP"
+              ]
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FeatureFlagUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseFeatureFlagResponse"
                 }
               }
             }
@@ -1950,6 +2084,26 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/CustomApiResponseCouponMetricResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/feature-flags": {
+      "get": {
+        "tags": [
+          "feature-flag-controller"
+        ],
+        "operationId": "getAllFlags",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseListFeatureFlagResponse"
                 }
               }
             }
@@ -3154,6 +3308,23 @@
           }
         }
       },
+      "LoginOtpVerificationRequest": {
+        "type": "object",
+        "properties": {
+          "challengeToken": {
+            "type": "string",
+            "minLength": 1
+          },
+          "otp": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "challengeToken",
+          "otp"
+        ]
+      },
       "ResetPasswordRequest": {
         "type": "object",
         "properties": {
@@ -3194,6 +3365,18 @@
         },
         "required": [
           "email"
+        ]
+      },
+      "LoginOtpResendRequest": {
+        "type": "object",
+        "properties": {
+          "challengeToken": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "challengeToken"
         ]
       },
       "RegistrationRequest": {
@@ -3239,6 +3422,34 @@
           "email",
           "password"
         ]
+      },
+      "CustomApiResponseLoginResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/LoginResponse"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "properties": {
+          "requiresOtp": {
+            "type": "boolean"
+          },
+          "challengeToken": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "auth": {
+            "$ref": "#/components/schemas/AuthResponse"
+          }
+        }
       },
       "CustomApiResponseVoid": {
         "type": "object",
@@ -3622,6 +3833,52 @@
           "lines",
           "type"
         ]
+      },
+      "FeatureFlagUpdateRequest": {
+        "type": "object",
+        "properties": {
+          "adminEnabled": {
+            "type": "boolean"
+          },
+          "customerEnabled": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "adminEnabled",
+          "customerEnabled"
+        ]
+      },
+      "CustomApiResponseFeatureFlagResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/FeatureFlagResponse"
+          }
+        }
+      },
+      "FeatureFlagResponse": {
+        "type": "object",
+        "properties": {
+          "featureKey": {
+            "type": "string",
+            "enum": [
+              "LOGIN_OTP"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
+          "adminEnabled": {
+            "type": "boolean"
+          },
+          "customerEnabled": {
+            "type": "boolean"
+          }
+        }
       },
       "CustomApiResponseTaxCalculationResponse": {
         "type": "object",
@@ -4269,15 +4526,15 @@
           "fullName": {
             "type": "string"
           },
-          "email": {
-            "type": "string"
-          },
           "totalAmountSpent": {
             "type": "number"
           },
           "totalOrders": {
             "type": "integer",
             "format": "int64"
+          },
+          "email": {
+            "type": "string"
           }
         }
       },
@@ -4347,19 +4604,19 @@
       "LowStockProduct": {
         "type": "object",
         "properties": {
-          "productName": {
-            "type": "string"
-          },
           "id": {
             "type": "integer",
             "format": "int64"
           },
+          "productImage": {
+            "type": "string"
+          },
+          "productName": {
+            "type": "string"
+          },
           "stockQuantity": {
             "type": "integer",
             "format": "int32"
-          },
-          "productImage": {
-            "type": "string"
           }
         }
       },
@@ -4445,6 +4702,9 @@
       "TopCompositionMetric": {
         "type": "object",
         "properties": {
+          "productImage": {
+            "type": "string"
+          },
           "productName": {
             "type": "string"
           },
@@ -4458,9 +4718,6 @@
           "totalSold": {
             "type": "integer",
             "format": "int64"
-          },
-          "productImage": {
-            "type": "string"
           }
         }
       },
@@ -4623,6 +4880,20 @@
           },
           "data": {
             "$ref": "#/components/schemas/CouponMetricResponse"
+          }
+        }
+      },
+      "CustomApiResponseListFeatureFlagResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeatureFlagResponse"
+            }
           }
         }
       },

@@ -56,6 +56,25 @@ export interface LoginRequest {
   password: string;
 }
 
+/** Response for POST /api/v1/auth/login */
+export interface LoginResponse {
+  requiresOtp: boolean;
+  challengeToken?: string;
+  email?: string;
+  auth?: AuthResponse;
+}
+
+/** POST /api/v1/auth/verify-login-otp */
+export interface LoginOtpVerificationRequest {
+  challengeToken: string;
+  otp: string;
+}
+
+/** POST /api/v1/auth/resend-login-otp */
+export interface LoginOtpResendRequest {
+  challengeToken: string;
+}
+
 /** POST /api/v1/auth/register */
 export interface RegistrationRequest {
   email: string;
@@ -774,4 +793,18 @@ export interface CustomerFullDetailsResponse {
   addresses: DeliveryDetailResponse[];
   totalSpent: string;
   orderCount: number;
+}
+
+// ─── Feature Flags ──────────────────────────────────────────────────────────
+
+export interface FeatureFlagResponse {
+  featureKey: string;
+  description: string;
+  adminEnabled: boolean;
+  customerEnabled: boolean;
+}
+
+export interface FeatureFlagUpdateRequest {
+  adminEnabled: boolean;
+  customerEnabled: boolean;
 }

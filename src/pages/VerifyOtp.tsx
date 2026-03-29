@@ -11,10 +11,12 @@ const OTP_LENGTH = 6;
 const RESEND_COOLDOWN = 60; // seconds
 
 export const VerifyOtp = () => {
-    const { verifyOtp } = useAuth();
+    const { verifyOtp, verifyLoginOtp } = useAuth();
     const navigate = useNavigate();
     const location = useLocation();
     const emailFromState = (location.state as any)?.email || '';
+    const challengeToken = (location.state as any)?.challengeToken || '';
+    const isLoginOtp = (location.state as any)?.isLoginOtp || false;
 
     const [email, setEmail] = useState(emailFromState);
     const [otp, setOtp] = useState<string[]>(Array(OTP_LENGTH).fill(''));
@@ -63,7 +65,7 @@ export const VerifyOtp = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!email) {
+        if (!isLoginOtp && !email) {
             toast.error('Please enter your email address');
             return;
         }
@@ -73,8 +75,13 @@ export const VerifyOtp = () => {
         }
         setIsLoading(true);
         try {
-            await verifyOtp(email, otpValue);
-            toast.success('Email verified! Welcome aboard!');
+            if (isLoginOtp) {
+                await verifyLoginOtp(challengeToken, otpValue);
+                toast.success('Login successful!');
+            } else {
+                await verifyOtp(email, otpValue);
+                toast.success('Email verified! Welcome aboard!');
+            }
             navigate('/', { replace: true });
         } catch (err: any) {
             const message =
@@ -86,13 +93,17 @@ export const VerifyOtp = () => {
     };
 
     const handleResend = async () => {
-        if (!email) {
+        if (!isLoginOtp && !email) {
             toast.error('Please enter your email address');
             return;
         }
         setIsResending(true);
         try {
-            await authService.resendOtp({ email });
+            if (isLoginOtp) {
+                await authService.resendLoginOtp({ challengeToken });
+            } else {
+                await authService.resendOtp({ email });
+            }
             toast.success('A new code has been sent to your email');
             setCooldown(RESEND_COOLDOWN);
             setOtp(Array(OTP_LENGTH).fill(''));

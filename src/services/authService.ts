@@ -1,6 +1,9 @@
 import api from './api';
 import type {
     LoginRequest,
+    LoginResponse,
+    LoginOtpVerificationRequest,
+    LoginOtpResendRequest,
     RegistrationRequest,
     CustomApiResponse,
     AuthResponse,
@@ -10,9 +13,20 @@ import type {
 } from '../types';
 
 export const authService = {
-    login: async (data: LoginRequest): Promise<AuthResponse> => {
-        const res = await api.post<CustomApiResponse<AuthResponse>>('/auth/login', data);
+    login: async (data: LoginRequest): Promise<LoginResponse> => {
+        const res = await api.post<CustomApiResponse<LoginResponse>>('/auth/login', data);
         return res.data.data;
+    },
+
+    /** POST /auth/verify-login-otp — validates login OTP using challenge token */
+    verifyLoginOtp: async (data: LoginOtpVerificationRequest): Promise<AuthResponse> => {
+        const res = await api.post<CustomApiResponse<AuthResponse>>('/auth/verify-login-otp', data);
+        return res.data.data;
+    },
+
+    /** POST /auth/resend-login-otp — requests a new login OTP */
+    resendLoginOtp: async (data: LoginOtpResendRequest): Promise<void> => {
+        await api.post('/auth/resend-login-otp', data);
     },
 
     /** POST /auth/register — now returns 204 No Content (OTP sent to email) */

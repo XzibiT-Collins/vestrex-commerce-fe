@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { AuthResponse } from '../types';
+import { AuthResponse, LoginResponse } from '../types';
 import { authService } from '../services/authService';
 import toast from 'react-hot-toast';
 
@@ -8,7 +8,7 @@ const USER_STORAGE_KEY = 'pb_user';
 interface AuthContextType {
   user: AuthResponse | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<LoginResponse>;
   register: (
     email: string,
     fullName: string,
@@ -16,6 +16,7 @@ interface AuthContextType {
     confirmPassword: string
   ) => Promise<string>;
   verifyOtp: (email: string, otp: string) => Promise<void>;
+  verifyLoginOtp: (challengeToken: string, otp: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -58,10 +59,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => window.removeEventListener('auth:session-expired', handleSessionExpired);
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const authResponse = await authService.login({ email, password });
-    setUser(authResponse);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(authResponse));
+  const login = async (email: string, password: string): Promise<LoginResponse> => {
+    const res = await authService.login({ email, password });
+    if (!res.requiresOtp && res.auth) {
+      setUser(res.auth);
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(res.auth));
+    }
+    return res;
   };
 
   /** Registers a new user. Returns the email for OTP redirect. Does NOT log in. */
@@ -80,9 +84,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return email;
   };
 
-  /** Verifies OTP, activates account, and sets auth state. */
+  /** Verifies Registration OTP, activates account, and sets auth state. */
   const verifyOtp = async (email: string, otp: string) => {
     const authResponse = await authService.verifyOtp({ email, otp });
+    setUser(authResponse);
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(authResponse));
+  };
+
+  /** Verifies Login OTP, sets auth state. */
+  const verifyLoginOtp = async (challengeToken: string, otp: string) => {
+    const authResponse = await authService.verifyLoginOtp({ challengeToken, otp });
     setUser(authResponse);
     localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(authResponse));
   };
@@ -114,7 +125,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, verifyOtp, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, verifyOtp, verifyLoginOtp, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );

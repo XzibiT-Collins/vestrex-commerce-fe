@@ -44,6 +44,7 @@ import { OAuth2RedirectHandler } from './pages/OAuth2RedirectHandler';
 import { VerifyOtp } from './pages/VerifyOtp';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
+import { FeatureFlagManagement } from './pages/FeatureFlagManagement';
 
 export default function App() {
   return (
@@ -64,6 +65,7 @@ export default function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/oauth2/redirect" element={<OAuth2RedirectHandler />} />
                 <Route path="/verify-email" element={<VerifyOtp />} />
+                <Route path="/verify-otp" element={<VerifyOtp />} />
                 <Route path="/forgot-password" element={<ForgotPassword />} />
                 <Route path="/reset-password" element={<ResetPassword />} />
 
@@ -92,6 +94,7 @@ export default function App() {
                   <Route path="/admin/customers/:id" element={<CustomerDetails />} />
                   <Route path="/admin/accounting" element={<Accounting />} />
                   <Route path="/admin/bookkeeping" element={<Bookkeeping />} />
+                  <Route path="/admin/settings" element={<FeatureFlagManagement />} />
                 </Route>
               </Routes>
             </Layout>
