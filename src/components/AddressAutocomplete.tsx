@@ -60,7 +60,14 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   }, [clearSuggestions]);
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setValue(e.target.value);
+    const val = e.target.value;
+    setValue(val);
+    // Ensure the parent state is updated even for manual input
+    onAddressSelect({
+      addressLine1: val,
+      city: '',
+      region: '',
+    });
   };
 
   const handleSelect = ({ description }: { description: string }) => () => {
@@ -98,6 +105,13 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
         city,
         region,
       });
+    }).catch(() => {
+      // Fallback if geocoding fails after selection
+      onAddressSelect({
+        addressLine1: description.split(',')[0],
+        city: '',
+        region: '',
+      });
     });
   };
 
@@ -111,7 +125,6 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       <input
         value={value}
         onChange={handleInput}
-        disabled={!ready}
         placeholder={placeholder}
         required={required}
         className={cn(
