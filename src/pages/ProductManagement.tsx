@@ -466,18 +466,51 @@ export const ProductManagement = () => {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Selling Price" type="number" step="0.01" value={formData.sellingPrice}
-              onChange={(e) => setField('sellingPrice', e.target.value)} required />
+            <div className="relative">
+              <Input 
+                label="Selling Price" 
+                type="number" 
+                step="0.01" 
+                value={formData.sellingPrice}
+                onChange={(e) => setField('sellingPrice', e.target.value)} 
+                required 
+                readOnly={!!editingProduct && Number(formData.stockQuantity) > 0}
+                className={!!editingProduct && Number(formData.stockQuantity) > 0 ? 'bg-zinc-100 dark:bg-zinc-900 cursor-not-allowed' : ''}
+              />
+              {!!editingProduct && Number(formData.stockQuantity) > 0 && (
+                <p className="text-[10px] text-[#999999] mt-1">Price is fixed while stock exists. Use inventory receipt for new pricing.</p>
+              )}
+            </div>
 
             {(formData.isNewProduct || !!editingProduct) && (
-              <Input label="Cost Price" type="number" step="0.01" value={formData.costPrice}
-                onChange={(e) => setField('costPrice', e.target.value)} required />
+              <Input 
+                label="Cost Price" 
+                type="number" 
+                step="0.01" 
+                value={formData.costPrice}
+                onChange={(e) => setField('costPrice', e.target.value)} 
+                required 
+                readOnly={!!editingProduct}
+                className={!!editingProduct ? 'bg-zinc-100 dark:bg-zinc-900 cursor-not-allowed' : ''}
+              />
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Stock Quantity" type="number" value={formData.stockQuantity}
-              onChange={(e) => setField('stockQuantity', e.target.value)} required />
+            <div className="relative">
+              <Input 
+                label="Stock Quantity" 
+                type="number" 
+                value={formData.stockQuantity}
+                onChange={(e) => setField('stockQuantity', e.target.value)} 
+                required 
+                readOnly={!!editingProduct}
+                className={!!editingProduct ? 'bg-zinc-100 dark:bg-zinc-900 cursor-not-allowed' : ''}
+              />
+              {!!editingProduct && (
+                <p className="text-[10px] text-[#999999] mt-1">Managed via inventory actions</p>
+              )}
+            </div>
             <Input label="Low Stock Threshold" type="number" value={formData.lowStockThreshold}
               onChange={(e) => setField('lowStockThreshold', e.target.value)} />
           </div>

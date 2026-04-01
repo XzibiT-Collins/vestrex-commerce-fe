@@ -948,6 +948,66 @@
         }
       }
     },
+    "/api/v1/admin/inventory/receipts": {
+      "post": {
+        "tags": [
+          "inventory-management-controller"
+        ],
+        "operationId": "receiveStock",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryReceiptRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseInventorySummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/inventory/adjustments": {
+      "post": {
+        "tags": [
+          "inventory-management-controller"
+        ],
+        "operationId": "adjustInventory",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InventoryAdjustmentRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseInventorySummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/bookkeeping/manual-entry": {
       "post": {
         "tags": [
@@ -2084,6 +2144,68 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/CustomApiResponseCouponMetricResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/inventory/products/{productId}/summary": {
+      "get": {
+        "tags": [
+          "inventory-management-controller"
+        ],
+        "operationId": "getProductInventorySummary",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseInventorySummaryResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/inventory/products/{productId}/history": {
+      "get": {
+        "tags": [
+          "inventory-management-controller"
+        ],
+        "operationId": "getProductInventoryHistory",
+        "parameters": [
+          {
+            "name": "productId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseListInventoryMovementResponse"
                 }
               }
             }
@@ -3748,6 +3870,159 @@
           }
         }
       },
+      "InventoryReceiptRequest": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "unitCost": {
+            "type": "number"
+          },
+          "unitSellingPrice": {
+            "type": "number"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "reference": {
+            "type": "string",
+            "minLength": 1
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "productId",
+          "quantity",
+          "reference",
+          "unitCost",
+          "unitSellingPrice"
+        ]
+      },
+      "CustomApiResponseInventorySummaryResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/InventorySummaryResponse"
+          }
+        }
+      },
+      "InventoryLayerResponse": {
+        "type": "object",
+        "properties": {
+          "layerId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "receivedQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "remainingQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitCost": {
+            "type": "string"
+          },
+          "unitSellingPrice": {
+            "type": "string"
+          },
+          "sourceType": {
+            "type": "string"
+          },
+          "sourceReference": {
+            "type": "string"
+          },
+          "receivedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InventorySummaryResponse": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productName": {
+            "type": "string"
+          },
+          "stockQuantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeCostPrice": {
+            "type": "string"
+          },
+          "activeSellingPrice": {
+            "type": "string"
+          },
+          "layers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryLayerResponse"
+            }
+          }
+        }
+      },
+      "InventoryAdjustmentRequest": {
+        "type": "object",
+        "properties": {
+          "productId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "direction": {
+            "type": "string",
+            "enum": [
+              "INCREASE",
+              "DECREASE"
+            ]
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32",
+            "minimum": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "unitCost": {
+            "type": "number"
+          },
+          "unitSellingPrice": {
+            "type": "number"
+          },
+          "reference": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "direction",
+          "productId",
+          "quantity",
+          "reason"
+        ]
+      },
       "JournalEntryLineRequest": {
         "type": "object",
         "properties": {
@@ -4526,15 +4801,15 @@
           "fullName": {
             "type": "string"
           },
-          "totalAmountSpent": {
-            "type": "number"
+          "email": {
+            "type": "string"
           },
           "totalOrders": {
             "type": "integer",
             "format": "int64"
           },
-          "email": {
-            "type": "string"
+          "totalAmountSpent": {
+            "type": "number"
           }
         }
       },
@@ -4608,15 +4883,15 @@
             "type": "integer",
             "format": "int64"
           },
-          "productImage": {
-            "type": "string"
+          "stockQuantity": {
+            "type": "integer",
+            "format": "int32"
           },
           "productName": {
             "type": "string"
           },
-          "stockQuantity": {
-            "type": "integer",
-            "format": "int32"
+          "productImage": {
+            "type": "string"
           }
         }
       },
@@ -4702,22 +4977,22 @@
       "TopCompositionMetric": {
         "type": "object",
         "properties": {
-          "productImage": {
-            "type": "string"
-          },
-          "productName": {
-            "type": "string"
+          "totalRevenue": {
+            "type": "number"
           },
           "productId": {
             "type": "integer",
             "format": "int64"
           },
-          "totalRevenue": {
-            "type": "number"
+          "productName": {
+            "type": "string"
           },
           "totalSold": {
             "type": "integer",
             "format": "int64"
+          },
+          "productImage": {
+            "type": "string"
           }
         }
       },
@@ -4880,6 +5155,55 @@
           },
           "data": {
             "$ref": "#/components/schemas/CouponMetricResponse"
+          }
+        }
+      },
+      "CustomApiResponseListInventoryMovementResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InventoryMovementResponse"
+            }
+          }
+        }
+      },
+      "InventoryMovementResponse": {
+        "type": "object",
+        "properties": {
+          "movementId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "movementType": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "unitCost": {
+            "type": "string"
+          },
+          "unitSellingPrice": {
+            "type": "string"
+          },
+          "referenceType": {
+            "type": "string"
+          },
+          "referenceId": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
           }
         }
       },

@@ -222,6 +222,59 @@ export interface ProductVariantSummaryResponse {
   variantName: string;
 }
 
+export interface InventoryReceiptRequest {
+  productId: number;
+  quantity: number;
+  unitCost: number;
+  unitSellingPrice: number;
+  receivedAt?: string;
+  reference: string;
+  note?: string;
+}
+
+export interface InventoryAdjustmentRequest {
+  productId: number;
+  direction: 'INCREASE' | 'DECREASE';
+  quantity: number;
+  reason: string;
+  reference?: string;
+  note?: string;
+  unitCost?: number;
+  unitSellingPrice?: number;
+}
+
+export interface InventoryLayerResponse {
+  layerId: number;
+  receivedQuantity: number;
+  remainingQuantity: number;
+  unitCost: string;
+  unitSellingPrice: string;
+  sourceType: string;
+  sourceReference: string;
+  receivedAt: string;
+}
+
+export interface InventorySummaryResponse {
+  productId: number;
+  productName: string;
+  stockQuantity: number;
+  activeCostPrice: string;
+  activeSellingPrice: string;
+  layers: InventoryLayerResponse[];
+}
+
+export interface InventoryMovementResponse {
+  movementId: number;
+  movementType: string;
+  quantity: number;
+  unitCost: string;
+  unitSellingPrice: string;
+  referenceType: string;
+  referenceId: string;
+  note: string;
+  createdAt: string;
+}
+
 export interface ProductRequest {
   productName: string;
   brand: string;
