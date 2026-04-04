@@ -560,19 +560,21 @@ export const AdminProductDetails = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Image and Status */}
         <div className="lg:col-span-1">
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-black/5 dark:border-white/5 h-full flex flex-col">
-            <div className="flex-1 rounded-2xl overflow-hidden bg-[#F5F5F5] dark:bg-zinc-800 mb-6 min-h-[300px]">
-              {product.productImageUrl ? (
-                <img
-                  src={product.productImageUrl}
-                  alt={product.productName}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-zinc-400">
-                  <Box className="h-12 w-12 opacity-50" />
-                </div>
-              )}
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-black/5 dark:border-white/5 h-full flex flex-col min-h-0">
+            <div className="relative flex-1 mb-6 min-h-[300px] lg:min-h-0">
+              <div className="absolute inset-0 rounded-2xl overflow-hidden bg-[#F5F5F5] dark:bg-zinc-800">
+                {product.productImageUrl ? (
+                  <img
+                    src={product.productImageUrl}
+                    alt={product.productName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-zinc-400">
+                    <Box className="h-12 w-12 opacity-50" />
+                  </div>
+                )}
+              </div>
             </div>
             
             <div className="space-y-4">
