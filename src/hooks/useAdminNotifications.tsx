@@ -2,24 +2,73 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { useAuth } from '../contexts/AuthContext';
-import { UserRole } from '../types';
+import { UserRole, NotificationResponse } from '../types';
 import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
-
-export interface NotificationPayload {
-  orderNumber: string;
-  customerEmail: string;
-  totalAmount: string;
-  placedAt: string;
-  message: string;
-}
+import notificationService from '../services/notificationService';
 
 export const useAdminNotifications = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [notifications, setNotifications] = useState<NotificationPayload[]>([]);
+  const [notifications, setNotifications] = useState<NotificationResponse[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const clientRef = useRef<Client | null>(null);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchNotifications = useCallback(async (isInitial = false) => {
+    try {
+      const response = await notificationService.getNotifications(isInitial ? 0 : page);
+      const newNotifications = response.data.content;
+      
+      if (isInitial) {
+        setNotifications(newNotifications);
+        setPage(1);
+      } else {
+        setNotifications((prev) => {
+          // Merge and avoid duplicates by recipientId
+          const existingIds = new Set(prev.map(n => n.recipientId));
+          const uniqueNew = newNotifications.filter(n => !existingIds.has(n.recipientId));
+          return [...prev, ...uniqueNew];
+        });
+        setPage((prev) => prev + 1);
+      }
+      setHasMore(!response.data.isLast);
+    } catch (err) {
+      console.error('Failed to fetch notifications', err);
+    }
+  }, [page]);
+
+  const fetchUnreadCount = useCallback(async () => {
+    try {
+      const response = await notificationService.getUnreadCount();
+      setUnreadCount(response.data.unreadCount);
+    } catch (err) {
+      console.error('Failed to fetch unread count', err);
+    }
+  }, []);
+
+  const markAsRead = useCallback(async (recipientId: number) => {
+    try {
+      await notificationService.markAsRead(recipientId);
+      setNotifications((prev) => 
+        prev.map((n) => n.recipientId === recipientId ? { ...n, read: true } : n)
+      );
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error('Failed to mark notification as read', err);
+    }
+  }, []);
+
+  const markAllAsRead = useCallback(async () => {
+    try {
+      await notificationService.markAllAsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('Failed to mark all notifications as read', err);
+    }
+  }, []);
 
   const getCookie = (name: string) => {
     const value = `; ${document.cookie}`;
@@ -30,7 +79,7 @@ export const useAdminNotifications = () => {
 
   const playSound = useCallback(() => {
     try {
-      const AudioContext = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioContext = (window as any).AudioContext || (window as any).webkitAudioContext;
       if (!AudioContext) return;
       const ctx = new AudioContext();
       const osc = ctx.createOscillator();
@@ -53,9 +102,12 @@ export const useAdminNotifications = () => {
     }
   }, []);
 
-  const markAllAsRead = useCallback(() => {
-    setUnreadCount(0);
-  }, []);
+  useEffect(() => {
+    if (user && user.role === UserRole.ADMIN) {
+      fetchNotifications(true);
+      fetchUnreadCount();
+    }
+  }, [user, fetchUnreadCount]); // fetchNotifications is not in deps to avoid re-run on page change here
 
   useEffect(() => {
     console.log('[WebSocket] useEffect triggered. User:', user);
@@ -65,7 +117,6 @@ export const useAdminNotifications = () => {
     }
 
     const token = getCookie('accessToken');
-    console.log('[WebSocket] Token retrieved from cookie:', token ? 'Exists' : 'Missing (null)');
     if (!token) {
       console.log('[WebSocket] Connection aborted. Reason: accessToken is missing.');
       return;
@@ -78,18 +129,14 @@ export const useAdminNotifications = () => {
     }
 
     const socketUrl = `${backendUrl.replace(/\/$/, '')}/ws`;
-    console.log('[WebSocket] Target Socket URL:', socketUrl);
 
     const client = new Client({
-      webSocketFactory: () => {
-        console.log('[WebSocket] Initiating SockJS connection to:', socketUrl);
-        return new SockJS(socketUrl);
-      },
+      webSocketFactory: () => new SockJS(socketUrl),
       connectHeaders: {
         Authorization: `Bearer ${token}`,
       },
       debug: (str) => {
-        console.log('[STOMP DEBUG]', str);
+        // console.log('[STOMP DEBUG]', str);
       },
       reconnectDelay: 5000,
       onConnect: () => {
@@ -98,8 +145,13 @@ export const useAdminNotifications = () => {
           console.log('[WebSocket] Message received:', message.body);
           if (message.body) {
             try {
-              const payload = JSON.parse(message.body) as NotificationPayload;
-              setNotifications((prev) => [payload, ...prev]);
+              const payload = JSON.parse(message.body) as NotificationResponse;
+              
+              setNotifications((prev) => {
+                const exists = prev.some(n => n.recipientId === payload.recipientId);
+                if (exists) return prev;
+                return [payload, ...prev];
+              });
               setUnreadCount((prev) => prev + 1);
               
               playSound();
@@ -114,23 +166,25 @@ export const useAdminNotifications = () => {
                     className="flex-1 w-0 p-4 cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors rounded-l-2xl"
                     onClick={() => {
                       toast.dismiss(t.id);
-                      navigate(`/admin/orders/${payload.orderNumber}`);
+                      markAsRead(payload.recipientId);
+                      if (payload.referenceType === 'ORDER') {
+                        navigate(`/admin/orders/${payload.referenceId}`);
+                      }
                     }}
                   >
                     <div className="flex items-start">
                       <div className="ml-3 flex-1">
                         <p className="text-sm font-bold text-zinc-900 dark:text-white">
+                          {payload.title}
+                        </p>
+                        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                           {payload.message}
                         </p>
-                        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                          Order: <span className="font-semibold">{payload.orderNumber}</span>
-                        </p>
-                        <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                          Total: {payload.totalAmount}
-                        </p>
-                        <p className="mt-1 text-xs text-accent-dark font-medium cursor-pointer">
-                          Customer: {payload.customerEmail}
-                        </p>
+                        {payload.referenceType === 'ORDER' && (
+                          <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            Order: <span className="font-semibold">{payload.referenceId}</span>
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -151,37 +205,23 @@ export const useAdminNotifications = () => {
           }
         });
       },
-      onStompError: (frame) => {
-        console.error('[WebSocket] STOMP Broker reported error: ' + frame.headers['message']);
-        console.error('[WebSocket] Additional STOMP details: ' + frame.body);
-      },
-      onWebSocketError: (evt) => {
-        console.error('[WebSocket] Underlying WebSocket connection error:', evt);
-      },
-      onDisconnect: () => {
-        console.log('[WebSocket] STOMP disconnected.');
-      }
     });
 
-    try {
-      client.activate();
-      console.log('[WebSocket] Client activated.');
-    } catch (e) {
-      console.error('[WebSocket] Error activating client:', e);
-    }
-    
+    client.activate();
     clientRef.current = client;
 
     return () => {
-      console.log('[WebSocket] Cleaning up hook. Deactivating client...');
       client.deactivate();
       clientRef.current = null;
     };
-  }, [user, playSound]);
+  }, [user, playSound, navigate, markAsRead]);
 
   return {
     notifications,
     unreadCount,
+    markAsRead,
     markAllAsRead,
+    fetchNotifications,
+    hasMore,
   };
 };

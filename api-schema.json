@@ -1068,6 +1068,50 @@
         }
       }
     },
+    "/api/v1/admin/notifications/{recipientId}/read": {
+      "patch": {
+        "tags": [
+          "notification-controller"
+        ],
+        "operationId": "markAsRead",
+        "parameters": [
+          {
+            "name": "recipientId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseNotificationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/notifications/read-all": {
+      "patch": {
+        "tags": [
+          "notification-controller"
+        ],
+        "operationId": "markAllAsRead",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/v1/admin/feature-flags/{featureKey}": {
       "get": {
         "tags": [
@@ -1904,6 +1948,56 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/CustomApiResponseAvailableUomsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/notifications": {
+      "get": {
+        "tags": [
+          "notification-controller"
+        ],
+        "operationId": "getNotifications",
+        "parameters": [
+          {
+            "name": "pageable",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "$ref": "#/components/schemas/Pageable"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponsePageResponseNotificationResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/admin/notifications/unread-count": {
+      "get": {
+        "tags": [
+          "notification-controller"
+        ],
+        "operationId": "getUnreadCount",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseUnreadNotificationCountResponse"
                 }
               }
             }
@@ -2750,6 +2844,9 @@
           "isActive": {
             "type": "boolean"
           },
+          "isEnlisted": {
+            "type": "boolean"
+          },
           "isFeatured": {
             "type": "boolean"
           },
@@ -2842,6 +2939,9 @@
             "format": "int32"
           },
           "isActive": {
+            "type": "boolean"
+          },
+          "isEnlisted": {
             "type": "boolean"
           },
           "isFeatured": {
@@ -4036,7 +4136,8 @@
               "SALES_REVENUE",
               "DISCOUNT_EXPENSE",
               "ACCOUNTS_PAYABLE",
-              "INVENTORY_ADJUSTMENT",
+              "INVENTORY_DECREASE",
+              "INVENTORY_INCREASE",
               "TAX_PAYABLE",
               "REFUND_PAYABLE",
               "COUPON_EXPENSE",
@@ -4090,7 +4191,8 @@
               "INVENTORY",
               "WALK_IN_SALE",
               "INVENTORY_PURCHASE",
-              "INVENTORY_ADJUSTMENT",
+              "INVENTORY_DECREASE",
+              "INVENTORY_INCREASE",
               "ADJUSTMENT",
               "INVENTORY_REVALUATION"
             ]
@@ -4108,6 +4210,60 @@
           "lines",
           "type"
         ]
+      },
+      "CustomApiResponseNotificationResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/NotificationResponse"
+          }
+        }
+      },
+      "NotificationResponse": {
+        "type": "object",
+        "properties": {
+          "recipientId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "notificationId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "type": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "referenceType": {
+            "type": "string"
+          },
+          "referenceId": {
+            "type": "string"
+          },
+          "read": {
+            "type": "boolean"
+          },
+          "readAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "deliveredAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
       },
       "FeatureFlagUpdateRequest": {
         "type": "object",
@@ -4325,6 +4481,9 @@
             "type": "boolean"
           },
           "isActive": {
+            "type": "boolean"
+          },
+          "isEnlisted": {
             "type": "boolean"
           },
           "slug": {
@@ -4740,6 +4899,77 @@
           }
         }
       },
+      "CustomApiResponsePageResponseNotificationResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/PageResponseNotificationResponse"
+          }
+        }
+      },
+      "PageResponseNotificationResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NotificationResponse"
+            }
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "number": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "numberOfElements": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "isFirst": {
+            "type": "boolean"
+          },
+          "isLast": {
+            "type": "boolean"
+          },
+          "isEmpty": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CustomApiResponseUnreadNotificationCountResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/UnreadNotificationCountResponse"
+          }
+        }
+      },
+      "UnreadNotificationCountResponse": {
+        "type": "object",
+        "properties": {
+          "unreadCount": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
       "CustomApiResponseListMostPurchaseProductResponse": {
         "type": "object",
         "properties": {
@@ -4804,12 +5034,12 @@
           "email": {
             "type": "string"
           },
+          "totalAmountSpent": {
+            "type": "number"
+          },
           "totalOrders": {
             "type": "integer",
             "format": "int64"
-          },
-          "totalAmountSpent": {
-            "type": "number"
           }
         }
       },
@@ -4987,12 +5217,12 @@
           "productName": {
             "type": "string"
           },
+          "productImage": {
+            "type": "string"
+          },
           "totalSold": {
             "type": "integer",
             "format": "int64"
-          },
-          "productImage": {
-            "type": "string"
           }
         }
       },
@@ -5351,7 +5581,8 @@
               "INVENTORY",
               "WALK_IN_SALE",
               "INVENTORY_PURCHASE",
-              "INVENTORY_ADJUSTMENT",
+              "INVENTORY_DECREASE",
+              "INVENTORY_INCREASE",
               "ADJUSTMENT",
               "INVENTORY_REVALUATION"
             ]
@@ -5409,7 +5640,8 @@
               "SALES_REVENUE",
               "DISCOUNT_EXPENSE",
               "ACCOUNTS_PAYABLE",
-              "INVENTORY_ADJUSTMENT",
+              "INVENTORY_DECREASE",
+              "INVENTORY_INCREASE",
               "TAX_PAYABLE",
               "REFUND_PAYABLE",
               "COUPON_EXPENSE",

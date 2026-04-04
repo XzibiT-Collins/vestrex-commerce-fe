@@ -129,6 +129,7 @@ export interface ProductListing {
   stockQuantity: number;
   isOutOfStock: boolean;
   isActive: boolean;
+  isEnlisted: boolean;
   slug: string;
 }
 
@@ -162,6 +163,7 @@ export interface ProductDetails {
   stockQuantity: number;
   lowStockThreshold: number;
   isActive: boolean;
+  isEnlisted: boolean;
   isFeatured: boolean;
   slug: string;
   familyCode?: string;
@@ -292,6 +294,7 @@ export interface ProductRequest {
   conversionFactor?: number;
   isNewProduct?: boolean;
   isActive?: boolean;
+  isEnlisted?: boolean;
   isFeatured?: boolean;
   productImage?: File;
 }
@@ -846,6 +849,26 @@ export interface CustomerFullDetailsResponse {
   addresses: DeliveryDetailResponse[];
   totalSpent: string;
   orderCount: number;
+}
+
+// ─── Notifications ──────────────────────────────────────────────────────────
+
+export interface NotificationResponse {
+  recipientId: number;
+  notificationId: number;
+  type: string;
+  title: string;
+  message: string;
+  referenceType: string;
+  referenceId: string;
+  read: boolean;
+  readAt: string | null;
+  deliveredAt: string;
+  createdAt: string;
+}
+
+export interface UnreadNotificationCountResponse {
+  unreadCount: number;
 }
 
 // ─── Feature Flags ──────────────────────────────────────────────────────────

@@ -1,4 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { MapPin, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
@@ -41,6 +43,7 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     debounce: 300,
   });
 
+  const [isLocating, setIsLocating] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -115,6 +118,76 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
     });
   };
 
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        getGeocode({ location: { lat: latitude, lng: longitude } })
+          .then((results) => {
+            if (results && results.length > 0) {
+              const result = results[0];
+              const description = result.formatted_address;
+              setValue(description, false);
+              clearSuggestions();
+              
+              const components = result.address_components;
+              let streetNumber = '';
+              let route = '';
+              let city = '';
+              let region = '';
+
+              components.forEach((component) => {
+                const types = component.types;
+                if (types.includes('street_number')) {
+                  streetNumber = component.long_name;
+                }
+                if (types.includes('route')) {
+                  route = component.long_name;
+                }
+                if (types.includes('locality')) {
+                  city = component.long_name;
+                } else if (types.includes('administrative_area_level_2') && !city) {
+                  city = component.long_name;
+                }
+                if (types.includes('administrative_area_level_1')) {
+                  region = component.long_name;
+                }
+              });
+
+              onAddressSelect({
+                addressLine1: `${streetNumber} ${route}`.trim() || description.split(',')[0],
+                city,
+                region,
+              });
+              
+              toast.success('Location found successfully');
+            }
+          })
+          .catch((error) => {
+            toast.error('Could not determine address from location');
+            console.error('Reverse geocoding error:', error);
+          })
+          .finally(() => {
+            setIsLocating(false);
+          });
+      },
+      (error) => {
+        setIsLocating(false);
+        if (error.code === error.PERMISSION_DENIED) {
+          toast.error('Location permission denied. Please enable it in your settings.');
+        } else {
+          toast.error('Unable to retrieve your location');
+        }
+      }
+    );
+  };
+
   return (
     <div className="w-full space-y-1.5 relative" ref={dropdownRef}>
       {label && (
@@ -122,17 +195,32 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
           {label}
         </label>
       )}
-      <input
-        value={value}
-        onChange={handleInput}
-        placeholder={placeholder}
-        required={required}
-        className={cn(
-          'flex w-full rounded-xl border border-[#E5E5E5] bg-white px-4 py-2.5 text-sm transition-all placeholder:text-[#999999] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/5 focus:border-[#1A1A1A] dark:bg-zinc-900 dark:border-zinc-800 dark:text-white dark:focus:border-accent dark:focus:ring-accent/5',
-          error && 'border-red-500 focus:border-red-500 focus:ring-red-500/5',
-          className
-        )}
-      />
+      <div className="relative flex items-center">
+        <input
+          value={value}
+          onChange={handleInput}
+          placeholder={placeholder}
+          required={required}
+          className={cn(
+            'flex w-full rounded-xl border border-[#E5E5E5] bg-white px-4 py-2.5 pr-10 text-sm transition-all placeholder:text-[#999999] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/5 focus:border-[#1A1A1A] dark:bg-zinc-900 dark:border-zinc-800 dark:text-white dark:focus:border-accent dark:focus:ring-accent/5',
+            error && 'border-red-500 focus:border-red-500 focus:ring-red-500/5',
+            className
+          )}
+        />
+        <button
+          type="button"
+          onClick={handleGetCurrentLocation}
+          disabled={isLocating}
+          className="absolute right-3 text-[#999999] hover:text-[#1A1A1A] dark:text-zinc-500 dark:hover:text-white transition-colors focus:outline-none"
+          title="Use current location"
+        >
+          {isLocating ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <MapPin className="h-4 w-4" />
+          )}
+        </button>
+      </div>
       {status === 'OK' && (
         <ul className="absolute z-[100] w-full bg-white dark:bg-zinc-900 border border-[#E5E5E5] dark:border-zinc-800 rounded-xl mt-1 shadow-xl max-h-60 overflow-auto py-2">
           {data.map((suggestion) => {

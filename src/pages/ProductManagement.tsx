@@ -35,6 +35,7 @@ const emptyForm = {
   lowStockThreshold: '',
   categoryId: '',
   isActive: true,
+  isEnlisted: true,
   isFeatured: false,
   productImage: null as File | null,
 };
@@ -143,6 +144,7 @@ export const ProductManagement = () => {
           lowStockThreshold: String(fullDetails.lowStockThreshold || ''),
           categoryId: String(fullDetails.category?.categoryId || ''),
           isActive: fullDetails.isActive,
+          isEnlisted: fullDetails.isEnlisted,
           isFeatured: fullDetails.isFeatured,
           productImage: null,
         });
@@ -190,6 +192,7 @@ export const ProductManagement = () => {
     if (formData.lowStockThreshold) fd.append('lowStockThreshold', formData.lowStockThreshold);
     fd.append('categoryId', formData.categoryId);
     fd.append('isActive', String(formData.isActive));
+    fd.append('isEnlisted', String(formData.isEnlisted));
     fd.append('isFeatured', String(formData.isFeatured));
     if (formData.productImage) fd.append('productImage', formData.productImage);
     return fd;
@@ -209,7 +212,8 @@ export const ProductManagement = () => {
           productImageUrl: updated.productImageUrl,
           price: updated.sellingPrice, // Note: sellingPrice in details maps to price in listing
           categoryName: updated.category?.categoryName || p.categoryName,
-          isActive: updated.isActive
+          isActive: updated.isActive,
+          isEnlisted: updated.isEnlisted
         } : p)));
         toast.success('Product updated');
       } else {
@@ -225,6 +229,7 @@ export const ProductManagement = () => {
           stockQuantity: created.stockQuantity,
           isOutOfStock: created.isOutOfStock,
           isActive: created.isActive,
+          isEnlisted: created.isEnlisted,
           slug: created.slug
         };
         setProducts((prev) => [newListing, ...prev]);
@@ -295,13 +300,22 @@ export const ProductManagement = () => {
     { 
       header: 'Status', 
       accessor: (p: ProductListing) => (
-        <span className={`px-2 py-1 rounded-full text-xs font-semibold ${
-          p.isActive 
-            ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-            : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
-        }`}>
-          {p.isActive ? 'Active' : 'Inactive'}
-        </span>
+        <div className="flex flex-col gap-1">
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold text-center w-fit ${
+            p.isActive 
+              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
+              : 'bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400'
+          }`}>
+            {p.isActive ? 'Active' : 'Inactive'}
+          </span>
+          <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold text-center w-fit ${
+            p.isEnlisted 
+              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' 
+              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400'
+          }`}>
+            {p.isEnlisted ? 'Enlisted' : 'Unenlisted'}
+          </span>
+        </div>
       )
     },
   ];
@@ -432,7 +446,7 @@ export const ProductManagement = () => {
               Full Description
             </label>
             <textarea
-              className="w-full px-4 py-3 bg-[#F5F5F5] dark:bg-zinc-800 dark:text-white rounded-xl text-sm border-none focus:ring-1 focus:ring-accent min-h-[80px] outline-none"
+              className="w-full px-4 py-3 bg-[#F5F5F5] dark:bg-zinc-800 dark:text-white rounded-xl text-sm border-none focus:ring-1 focus:ring-accent min-h-[80px] outline-none custom-scrollbar"
               value={formData.productDescription}
               onChange={(e) => setField('productDescription', e.target.value)}
               required
@@ -517,11 +531,18 @@ export const ProductManagement = () => {
 
 
 
-          <div className="flex gap-6">
+          <div className="flex flex-wrap gap-6 border-t border-zinc-100 dark:border-zinc-800 pt-4">
             <Checkbox
               checked={formData.isActive}
               onChange={(v) => setField('isActive', v)}
               label="Active"
+              description="Controls if the product is active in the system."
+            />
+            <Checkbox
+              checked={formData.isEnlisted}
+              onChange={(v) => setField('isEnlisted', v)}
+              label="Enlisted for Ecommerce"
+              description="Controls if customers can see and buy it online."
             />
             <Checkbox
               checked={formData.isFeatured}

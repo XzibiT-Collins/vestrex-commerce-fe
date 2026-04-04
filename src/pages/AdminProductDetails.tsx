@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { ArrowLeft, Box } from 'lucide-react';
+import { ArrowLeft, Box, Plus, History, List, Settings2 } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 import { Input } from '../components/Input';
@@ -19,7 +19,6 @@ import type {
   InventoryAdjustmentRequest
 } from '../types';
 import toast from 'react-hot-toast';
-import { Plus, History, List, Settings2 } from 'lucide-react';
 
 export const AdminProductDetails = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -182,7 +181,7 @@ export const AdminProductDetails = () => {
         setConversionSummary(res);
         toast.success('Reverse conversion completed successfully');
       }
-      loadProduct(); // refresh admin details to show new stock
+      loadProduct();
     } catch (err: any) {
       toast.error(err?.response?.data?.description || 'Conversion failed. Please check rules.');
     } finally {
@@ -215,7 +214,7 @@ export const AdminProductDetails = () => {
             label="Unit Cost" 
             type="number" 
             step="0.01" 
-            value={receiptForm.unitCost} 
+            value={receiptForm.unitCost || ''} 
             onChange={(e) => setReceiptForm({ ...receiptForm, unitCost: Number(e.target.value) })} 
             required 
           />
@@ -223,7 +222,7 @@ export const AdminProductDetails = () => {
             label="Unit Selling Price" 
             type="number" 
             step="0.01" 
-            value={receiptForm.unitSellingPrice} 
+            value={receiptForm.unitSellingPrice || ''} 
             onChange={(e) => setReceiptForm({ ...receiptForm, unitSellingPrice: Number(e.target.value) })} 
             required 
           />
@@ -231,7 +230,7 @@ export const AdminProductDetails = () => {
         <div>
           <label className="block text-xs font-bold uppercase tracking-widest text-[#999999] mb-2">Note</label>
           <textarea
-            className="w-full px-4 py-3 bg-[#F5F5F5] dark:bg-zinc-800 dark:text-white rounded-xl text-sm border-none focus:ring-1 focus:ring-accent min-h-[80px] outline-none"
+            className="w-full px-4 py-3 bg-[#F5F5F5] dark:bg-zinc-800 dark:text-white rounded-xl text-sm border-none focus:ring-1 focus:ring-accent min-h-[80px] outline-none custom-scrollbar"
             value={receiptForm.note}
             onChange={(e) => setReceiptForm({ ...receiptForm, note: e.target.value })}
           />
@@ -287,7 +286,7 @@ export const AdminProductDetails = () => {
               label="Unit Cost" 
               type="number" 
               step="0.01" 
-              value={adjustmentForm.unitCost} 
+              value={adjustmentForm.unitCost || ''} 
               onChange={(e) => setAdjustmentForm({ ...adjustmentForm, unitCost: Number(e.target.value) })} 
               required 
             />
@@ -295,7 +294,7 @@ export const AdminProductDetails = () => {
               label="Unit Selling Price" 
               type="number" 
               step="0.01" 
-              value={adjustmentForm.unitSellingPrice} 
+              value={adjustmentForm.unitSellingPrice || ''} 
               onChange={(e) => setAdjustmentForm({ ...adjustmentForm, unitSellingPrice: Number(e.target.value) })} 
               required 
             />
@@ -311,7 +310,7 @@ export const AdminProductDetails = () => {
         <div>
           <label className="block text-xs font-bold uppercase tracking-widest text-[#999999] mb-2">Note</label>
           <textarea
-            className="w-full px-4 py-3 bg-[#F5F5F5] dark:bg-zinc-800 dark:text-white rounded-xl text-sm border-none focus:ring-1 focus:ring-accent min-h-[80px] outline-none"
+            className="w-full px-4 py-3 bg-[#F5F5F5] dark:bg-zinc-800 dark:text-white rounded-xl text-sm border-none focus:ring-1 focus:ring-accent min-h-[80px] outline-none custom-scrollbar"
             value={adjustmentForm.note}
             onChange={(e) => setAdjustmentForm({ ...adjustmentForm, note: e.target.value })}
           />
@@ -349,7 +348,7 @@ export const AdminProductDetails = () => {
 
           <div>
             <h4 className="text-sm font-bold uppercase tracking-widest text-[#999999] mb-3">Inventory Layers (FIFO)</h4>
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full text-left text-sm">
                 <thead className="text-xs font-bold uppercase tracking-widest text-[#999999] border-b border-zinc-100 dark:border-zinc-800">
                   <tr>
@@ -398,7 +397,7 @@ export const AdminProductDetails = () => {
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
         </div>
       ) : (
-        <div className="overflow-x-auto">
+        <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left text-sm">
             <thead className="text-xs font-bold uppercase tracking-widest text-[#999999] border-b border-zinc-100 dark:border-zinc-800">
               <tr>
@@ -560,9 +559,9 @@ export const AdminProductDetails = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column: Image and Status */}
-        <div className="lg:col-span-1 space-y-6">
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-black/5 dark:border-white/5">
-            <div className="aspect-square rounded-2xl overflow-hidden bg-[#F5F5F5] dark:bg-zinc-800 mb-6">
+        <div className="lg:col-span-1">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl p-6 shadow-sm border border-black/5 dark:border-white/5 h-full flex flex-col">
+            <div className="flex-1 rounded-2xl overflow-hidden bg-[#F5F5F5] dark:bg-zinc-800 mb-6 min-h-[300px]">
               {product.productImageUrl ? (
                 <img
                   src={product.productImageUrl}
@@ -582,6 +581,9 @@ export const AdminProductDetails = () => {
                 <div className="flex flex-wrap gap-2">
                   <Badge variant={product.isActive ? "success" : "default"}>
                     {product.isActive ? 'Active' : 'Inactive'}
+                  </Badge>
+                  <Badge variant={product.isEnlisted ? "info" : "warning"}>
+                    {product.isEnlisted ? 'Enlisted' : 'Unenlisted'}
                   </Badge>
                   {product.isFeatured && <Badge variant="info">Featured</Badge>}
                   {product.isOutOfStock && <Badge variant="danger">Out of Stock</Badge>}

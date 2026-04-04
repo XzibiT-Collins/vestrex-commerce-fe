@@ -9,6 +9,7 @@ import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
 import type { ProductDetailsPageResponse } from '../types';
 import toast from 'react-hot-toast';
+import { extractErrorMessage } from '../utils';
 
 export const ProductDetails = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -29,7 +30,7 @@ export const ProductDetails = () => {
       .then(setProduct)
       .catch(() => navigate('/products', { replace: true }))
       .finally(() => setIsLoading(false));
-  }, [slug]);
+  }, [slug, navigate]);
 
   const handleAddToCart = async () => {
     if (!product) return;
@@ -43,8 +44,8 @@ export const ProductDetails = () => {
         quantity
       );
       toast.success('Added to cart');
-    } catch {
-      toast.error('Could not add to cart');
+    } catch (err) {
+      toast.error(extractErrorMessage(err, 'Could not add to cart'));
     } finally {
       setIsAdding(false);
     }

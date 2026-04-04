@@ -94,7 +94,7 @@ export function AdminTable<T>({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="overflow-x-auto custom-scrollbar">
         <table className="w-full text-left">
           <thead>
             <tr className="bg-[#FBFBFB] dark:bg-zinc-950 text-[10px] font-bold uppercase tracking-widest text-[#999999] dark:text-zinc-500">

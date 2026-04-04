@@ -8,6 +8,8 @@ import toast from 'react-hot-toast';
 import { motion } from 'motion/react';
 import type { ProductListing } from '../types';
 
+import { extractErrorMessage } from '../utils';
+
 interface ProductCardProps {
   product: ProductListing;
 }
@@ -27,8 +29,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         1
       );
       setIsCartOpen(true);
-    } catch {
-      toast.error('Could not add to cart');
+      toast.success('Added to cart');
+    } catch (err) {
+      toast.error(extractErrorMessage(err, 'Could not add to cart'));
     }
   };
 

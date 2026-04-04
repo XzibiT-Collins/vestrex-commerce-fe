@@ -20,7 +20,8 @@ import {
   Sun,
   Moon,
   Calculator,
-  BookOpen
+  BookOpen,
+  CheckCheck
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
@@ -40,6 +41,7 @@ const menuItems = [
   { icon: Receipt, label: 'Taxes', path: '/admin/taxes' },
   { icon: Calculator, label: 'Accounting', path: '/admin/accounting' },
   { icon: BookOpen, label: 'Bookkeeping', path: '/admin/bookkeeping' },
+  { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];
 
 export const AdminNavbar = () => {
@@ -50,7 +52,14 @@ export const AdminNavbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
-  const { notifications, unreadCount, markAllAsRead } = useAdminNotifications();
+  const { 
+    notifications, 
+    unreadCount, 
+    markAsRead, 
+    markAllAsRead,
+    fetchNotifications,
+    hasMore 
+  } = useAdminNotifications();
 
   const notificationsRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -109,10 +118,7 @@ export const AdminNavbar = () => {
 
           <div className="relative" ref={notificationsRef}>
             <button
-              onClick={() => {
-                setIsNotificationsOpen(!isNotificationsOpen);
-                if (!isNotificationsOpen) markAllAsRead();
-              }}
+              onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
               className="p-2 hover:bg-[#F5F5F5] dark:hover:bg-zinc-900 rounded-xl transition-colors relative"
             >
               <Bell className="h-5 w-5 text-[#666666] dark:text-zinc-400" />
@@ -124,10 +130,24 @@ export const AdminNavbar = () => {
             </button>
 
             {isNotificationsOpen && (
-              <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-[#F5F5F5] dark:border-zinc-800 py-2 z-50 max-h-96 overflow-y-auto">
+              <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-[#F5F5F5] dark:border-zinc-800 py-2 z-50 max-h-[32rem] overflow-y-auto custom-scrollbar">
                 <div className="px-4 py-3 border-b border-[#F5F5F5] dark:border-zinc-800 flex justify-between items-center sticky top-0 bg-white dark:bg-zinc-900 z-10">
-                  <h3 className="text-sm font-bold dark:text-white">Notifications</h3>
-                  <span className="text-xs text-[#999999]">{notifications.length} total</span>
+                  <div>
+                    <h3 className="text-sm font-bold dark:text-white">Notifications</h3>
+                    <p className="text-[10px] text-[#999999]">{unreadCount} unread</p>
+                  </div>
+                  {unreadCount > 0 && (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        markAllAsRead();
+                      }}
+                      className="text-[10px] font-bold text-accent-dark hover:text-accent flex items-center gap-1 transition-colors"
+                    >
+                      <CheckCheck className="h-3 w-3" />
+                      Mark all as read
+                    </button>
+                  )}
                 </div>
                 <div className="flex flex-col">
                   {notifications.length === 0 ? (
@@ -135,37 +155,63 @@ export const AdminNavbar = () => {
                       No notifications yet
                     </div>
                   ) : (
-                    notifications.map((notif, idx) => (
-                      <Link
-                        key={idx}
-                        to={`/admin/orders/${notif.orderNumber}`}
-                        onClick={() => setIsNotificationsOpen(false)}
-                        className="block px-4 py-3 hover:bg-[#F5F5F5] dark:hover:bg-zinc-800 transition-colors border-b border-[#F5F5F5] dark:border-zinc-800 last:border-0"
-                      >
-                        <p className="text-xs font-bold text-zinc-900 dark:text-white mb-1">
-                          {notif.message}
-                        </p>
-                        <div className="flex justify-between items-center mb-0.5">
-                          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
-                            Order: {notif.orderNumber}
+                    <>
+                      {notifications.map((notif) => (
+                        <Link
+                          key={notif.recipientId}
+                          to={notif.referenceType === 'ORDER' ? `/admin/orders/${notif.referenceId}` : '#'}
+                          onClick={() => {
+                            setIsNotificationsOpen(false);
+                            if (!notif.read) markAsRead(notif.recipientId);
+                          }}
+                          className={cn(
+                            "block px-4 py-3 hover:bg-[#F5F5F5] dark:hover:bg-zinc-800 transition-colors border-b border-[#F5F5F5] dark:border-zinc-800 last:border-0",
+                            !notif.read && "bg-accent/5 dark:bg-accent/10"
+                          )}
+                        >
+                          <div className="flex justify-between items-start mb-1">
+                            <p className={cn(
+                              "text-xs dark:text-white",
+                              !notif.read ? "font-bold" : "font-medium text-zinc-700 dark:text-zinc-300"
+                            )}>
+                              {notif.title}
+                            </p>
+                            {!notif.read && (
+                              <span className="h-1.5 w-1.5 rounded-full bg-accent mt-1" />
+                            )}
+                          </div>
+                          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-2 line-clamp-2">
+                            {notif.message}
                           </p>
-                          <p className="text-[10px] font-bold text-zinc-700 dark:text-zinc-300">
-                            {notif.totalAmount}
-                          </p>
-                        </div>
-                        <div className="flex justify-between items-center mt-2 border-t border-[#F5F5F5] dark:border-zinc-800 pt-2">
-                          <span className="text-[10px] font-medium text-accent-dark">
-                            {notif.customerEmail}
-                          </span>
-                          <span className="text-[10px] text-zinc-400">
-                            {new Date(notif.placedAt).toLocaleTimeString([], {
-                              hour: '2-digit',
-                              minute: '2-digit',
-                            })}
-                          </span>
-                        </div>
-                      </Link>
-                    ))
+                          <div className="flex justify-between items-center mt-2 border-t border-[#F5F5F5] dark:border-zinc-800 pt-2">
+                            {notif.referenceType === 'ORDER' && (
+                              <span className="text-[10px] font-bold text-accent-dark">
+                                #{notif.referenceId}
+                              </span>
+                            )}
+                            <span className="text-[10px] text-zinc-400">
+                              {new Date(notif.createdAt).toLocaleString([], {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </span>
+                          </div>
+                        </Link>
+                      ))}
+                      {hasMore && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            fetchNotifications();
+                          }}
+                          className="w-full py-3 text-[10px] font-bold text-zinc-500 hover:text-accent-dark transition-colors uppercase tracking-widest border-t border-[#F5F5F5] dark:border-zinc-800"
+                        >
+                          Load More
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -178,10 +224,10 @@ export const AdminNavbar = () => {
               className="flex items-center gap-3 p-1.5 hover:bg-[#F5F5F5] dark:hover:bg-zinc-900 rounded-xl transition-colors"
             >
               <div className="h-8 w-8 rounded-lg bg-accent flex items-center justify-center text-[#1A1A1A] font-bold text-xs">
-                AD
+                {user?.fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'AD'}
               </div>
               <div className="hidden lg:block text-left">
-                <p className="text-xs font-bold dark:text-white">{user?.name || 'Admin'}</p>
+                <p className="text-xs font-bold dark:text-white">{user?.fullName || 'Admin'}</p>
                 <p className="text-[10px] text-[#999999] uppercase tracking-widest font-bold">Super Admin</p>
               </div>
               <ChevronDown className={cn("h-4 w-4 text-[#999999] transition-transform", isProfileOpen && "rotate-180")} />
@@ -190,17 +236,21 @@ export const AdminNavbar = () => {
             {isProfileOpen && (
               <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-zinc-900 rounded-2xl shadow-2xl border border-[#F5F5F5] dark:border-zinc-800 py-2 z-50">
                 <div className="px-4 py-3 border-b border-[#F5F5F5] dark:border-zinc-800 mb-2">
-                  <p className="text-sm font-bold dark:text-white">{user?.name}</p>
+                  <p className="text-sm font-bold dark:text-white">{user?.fullName}</p>
                   <p className="text-xs text-[#999999]">{user?.email}</p>
                 </div>
                 <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#666666] dark:text-zinc-400 hover:bg-[#F5F5F5] dark:hover:bg-zinc-800 transition-colors">
                   <User className="h-4 w-4" />
                   Profile Settings
                 </button>
-                <button className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#666666] dark:text-zinc-400 hover:bg-[#F5F5F5] dark:hover:bg-zinc-800 transition-colors">
+                <Link 
+                  to="/admin/settings"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="w-full flex items-center gap-3 px-4 py-2 text-sm text-[#666666] dark:text-zinc-400 hover:bg-[#F5F5F5] dark:hover:bg-zinc-800 transition-colors"
+                >
                   <Settings className="h-4 w-4" />
                   Store Settings
-                </button>
+                </Link>
                 <div className="h-px bg-[#F5F5F5] dark:bg-zinc-800 my-2" />
                 <button
                   onClick={logout}
