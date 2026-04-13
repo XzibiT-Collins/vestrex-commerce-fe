@@ -18,7 +18,8 @@ import {
 import { formatPrice, parsePrice, extractErrorMessage } from '../utils';
 import { useDebounce } from '../hooks/useDebounce';
 import toast from 'react-hot-toast';
-import { Trash2, Plus, Minus, Search, User, ShoppingCart, CreditCard, Package, X, Tag, Loader2 } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Trash2, Plus, Minus, Search, User, ShoppingCart, CreditCard, Package, X, Tag, Loader2, ShieldAlert } from 'lucide-react';
 
 interface CartItem extends ProductListing {
   quantity: number;
@@ -28,6 +29,10 @@ type CustomerMode = 'ANONYMOUS' | 'REGISTERED' | 'WALK_IN';
 
 export const WalkInOrderCreation = () => {
   const navigate = useNavigate();
+  const { hasPermission } = useAuth();
+  const canCreate = hasPermission('WALK_IN_ORDER_CREATE');
+  const canSearchCustomers = hasPermission('CUSTOMER_SEARCH');
+
   const [cart, setCart] = useState<CartItem[]>([]);
   const [customerMode, setCustomerMode] = useState<CustomerMode>('ANONYMOUS');
   const [registeredCustomer, setRegisteredCustomer] = useState<CustomerSearchResponse | null>(null);
@@ -213,6 +218,18 @@ export const WalkInOrderCreation = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
+      {!canCreate && (
+        <div className="mb-8 p-6 bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/20 rounded-3xl flex items-center gap-4">
+           <div className="h-12 w-12 rounded-2xl bg-red-100 dark:bg-red-900/20 flex items-center justify-center text-red-600">
+              <ShieldAlert className="h-6 w-6" />
+           </div>
+           <div>
+              <p className="font-bold text-red-900 dark:text-red-400">Creation Restricted</p>
+              <p className="text-sm text-red-700 dark:text-red-500/80">You have view-only access. Your account does not have permission to process new sales.</p>
+           </div>
+        </div>
+      )}
+
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-2xl font-bold dark:text-white">New Walk-In Order</h1>
         <Button variant="outline" onClick={() => navigate('/admin/walk-in')}>
@@ -375,12 +392,12 @@ export const WalkInOrderCreation = () => {
                        }}
                        options={[
                           { label: 'Anonymous Guest', value: 'ANONYMOUS' },
-                          { label: 'Existing Customer', value: 'REGISTERED' },
+                          ...(canSearchCustomers ? [{ label: 'Existing Customer', value: 'REGISTERED' as CustomerMode }] : []),
                           { label: 'New Walk-In', value: 'WALK_IN' },
                        ]}
                     />
 
-                    {customerMode === 'REGISTERED' && (
+                    {customerMode === 'REGISTERED' && canSearchCustomers && (
                        <div className="space-y-3">
                           {!registeredCustomer ? (
                              <div className="relative">
@@ -570,9 +587,9 @@ export const WalkInOrderCreation = () => {
                  className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-accent/10 transition-transform active:scale-[0.98]" 
                  onClick={handleSubmit} 
                  isLoading={isSubmitting || isCalculatingTax}
-                 disabled={cart.length === 0}
+                 disabled={cart.length === 0 || !canCreate}
               >
-                 Complete Purchase
+                 {canCreate ? 'Complete Purchase' : 'Creation Disabled'}
               </Button>
               
               <p className="mt-6 text-[10px] text-center text-[#999999] dark:text-zinc-500 font-bold uppercase tracking-widest">

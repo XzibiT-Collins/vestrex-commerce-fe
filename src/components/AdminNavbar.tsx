@@ -21,16 +21,19 @@ import {
   Moon,
   Calculator,
   BookOpen,
-  CheckCheck
+  CheckCheck,
+  Shield
 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAdminNotifications } from '../hooks/useAdminNotifications';
 import { cn } from '../utils';
 import { Dropdown } from './Dropdown';
+import { getVisibleAdminMenuItems } from '../utils/adminNavigation';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
+  { icon: Shield, label: 'Front Desk', path: '/admin/front-desk' },
   { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
   { icon: Package, label: 'Products', path: '/admin/products' },
   { icon: Tag, label: 'Categories', path: '/admin/categories' },
@@ -45,12 +48,14 @@ const menuItems = [
 ];
 
 export const AdminNavbar = () => {
-  const { user, logout } = useAuth();
+  const { user, logout, hasPermission } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+
+  const filteredMenuItems = getVisibleAdminMenuItems(menuItems, user, hasPermission);
 
   const { 
     notifications, 
@@ -227,8 +232,10 @@ export const AdminNavbar = () => {
                 {user?.fullName?.split(' ').map(n => n[0]).join('').toUpperCase() || 'AD'}
               </div>
               <div className="hidden lg:block text-left">
-                <p className="text-xs font-bold dark:text-white">{user?.fullName || 'Admin'}</p>
-                <p className="text-[10px] text-[#999999] uppercase tracking-widest font-bold">Super Admin</p>
+                <p className="text-xs font-bold dark:text-white">{user?.fullName || 'User'}</p>
+                <p className="text-[10px] text-[#999999] uppercase tracking-widest font-bold">
+                  {user?.role === 'ADMIN' ? 'Super Admin' : user?.role === 'FRONT_DESK' ? 'Front Desk' : 'Customer'}
+                </p>
               </div>
               <ChevronDown className={cn("h-4 w-4 text-[#999999] transition-transform", isProfileOpen && "rotate-180")} />
             </button>
@@ -283,7 +290,7 @@ export const AdminNavbar = () => {
             </div>
             <div className="flex-1 p-6">
               <nav className="space-y-2">
-                {menuItems.map((item) => {
+                {filteredMenuItems.map((item) => {
                   const isActive = location.pathname === item.path;
                   return (
                     <Link

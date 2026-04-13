@@ -3,6 +3,16 @@
 export enum UserRole {
   CUSTOMER = 'CUSTOMER',
   ADMIN = 'ADMIN',
+  FRONT_DESK = 'FRONT_DESK',
+}
+
+export enum FrontDeskPermission {
+  WALK_IN_ORDER_CREATE = 'WALK_IN_ORDER_CREATE',
+  WALK_IN_ORDER_VIEW = 'WALK_IN_ORDER_VIEW',
+  WALK_IN_ORDER_MARK_RECEIPT_PRINTED = 'WALK_IN_ORDER_MARK_RECEIPT_PRINTED',
+  CUSTOMER_SEARCH = 'CUSTOMER_SEARCH',
+  PRODUCT_VIEW_ADMIN_CATALOG = 'PRODUCT_VIEW_ADMIN_CATALOG',
+  PRODUCT_VIEW_STOCK_SUMMARY = 'PRODUCT_VIEW_STOCK_SUMMARY',
 }
 
 export enum AddressLabel {
@@ -48,6 +58,7 @@ export interface AuthResponse {
   fullName: string;
   profilePicture: string | null;
   role: UserRole;
+  permissions: FrontDeskPermission[];
 }
 
 /** POST /api/v1/auth/login */
@@ -117,6 +128,9 @@ export interface CategoryRequest {
 }
 
 // ─── Product ──────────────────────────────────────────────────────────────────
+
+/** Backwards-compatibility alias for ProductListing */
+export type Product = ProductListing;
 
 /** Matches backend ProductListing (used in paginated listing) */
 export interface ProductListing {
@@ -877,10 +891,57 @@ export interface FeatureFlagResponse {
   featureKey: string;
   description: string;
   adminEnabled: boolean;
+  frontDeskEnabled: boolean;
   customerEnabled: boolean;
 }
 
 export interface FeatureFlagUpdateRequest {
   adminEnabled: boolean;
+  frontDeskEnabled: boolean;
   customerEnabled: boolean;
+}
+
+// ─── Front Desk Management ────────────────────────────────────────────────────
+
+export interface FrontDeskPermissionTemplateResponse {
+  permissions: FrontDeskPermission[];
+}
+
+export interface FrontDeskPermissionTemplateUpdateRequest {
+  permissions: FrontDeskPermission[];
+}
+
+export interface FrontDeskUserSummaryResponse {
+  id: number;
+  fullName: string;
+  email: string;
+  isActive: boolean;
+  role: UserRole;
+}
+
+export interface CreateFrontDeskUserRequest {
+  fullName: string;
+  email: string;
+  password: string;
+  isActive: boolean;
+}
+
+export interface UpdateFrontDeskUserRequest {
+  fullName?: string;
+  email?: string;
+  password?: string;
+  isActive?: boolean;
+}
+
+export interface FrontDeskUserPermissionsResponse {
+  userId: number;
+  templatePermissions: FrontDeskPermission[];
+  allowedOverrides: FrontDeskPermission[];
+  deniedOverrides: FrontDeskPermission[];
+  effectivePermissions: FrontDeskPermission[];
+}
+
+export interface FrontDeskUserPermissionOverrideUpdateRequest {
+  allowedPermissions: FrontDeskPermission[];
+  deniedPermissions: FrontDeskPermission[];
 }

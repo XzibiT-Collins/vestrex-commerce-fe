@@ -9,9 +9,18 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   className?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 }
 
-export const Modal = ({ isOpen, onClose, title, children, className }: ModalProps) => {
+const sizeClasses = {
+  sm: 'max-w-sm',
+  md: 'max-w-md',
+  lg: 'max-w-lg',
+  xl: 'max-w-xl',
+  '2xl': 'max-w-2xl',
+};
+
+export const Modal = ({ isOpen, onClose, title, children, className, size = 'lg' }: ModalProps) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -29,7 +38,8 @@ export const Modal = ({ isOpen, onClose, title, children, className }: ModalProp
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               className={cn(
-                "bg-white dark:bg-zinc-900 w-full max-w-lg rounded-[2.5rem] shadow-2xl pointer-events-auto overflow-hidden border dark:border-zinc-800",
+                "bg-white dark:bg-zinc-900 w-full rounded-[2.5rem] shadow-2xl pointer-events-auto overflow-hidden border dark:border-zinc-800",
+                sizeClasses[size],
                 className
               )}
             >

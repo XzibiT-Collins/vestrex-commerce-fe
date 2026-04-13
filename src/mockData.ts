@@ -1,13 +1,30 @@
-import { Category, Product } from './types';
+interface MockCategory {
+  id: string;
+  name: string;
+  productCount: number;
+}
 
-export const MOCK_CATEGORIES: Category[] = [
+interface MockProduct {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  stockQuantity: number;
+  category: MockCategory;
+  imageUrl: string;
+  isActive: boolean;
+  sku: string;
+  discountPrice?: number;
+}
+
+export const MOCK_CATEGORIES: MockCategory[] = [
   { id: '1', name: 'Botanical', productCount: 12 },
   { id: '2', name: 'Arboreal', productCount: 8 },
   { id: '3', name: 'Hesperidic', productCount: 24 },
   { id: '4', name: 'Amber', productCount: 15 },
 ];
 
-export const MOCK_PRODUCTS: Product[] = [
+export const MOCK_PRODUCTS: MockProduct[] = [
   {
     id: '1',
     name: 'Rosa Damascena No. 1',

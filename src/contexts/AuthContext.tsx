@@ -19,6 +19,7 @@ interface AuthContextType {
   verifyLoginOtp: (challengeToken: string, otp: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
+  hasPermission: (permission: string) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -124,8 +125,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const hasPermission = (permission: string): boolean => {
+    if (user?.role === 'ADMIN') return true;
+    if (user?.role === 'FRONT_DESK') {
+      return user.permissions?.includes(permission as any) || false;
+    }
+    return false;
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, verifyOtp, verifyLoginOtp, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, verifyOtp, verifyLoginOtp, loginWithGoogle, logout, hasPermission }}>
       {children}
     </AuthContext.Provider>
   );

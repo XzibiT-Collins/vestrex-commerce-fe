@@ -103,7 +103,7 @@ export const useAdminNotifications = () => {
   }, []);
 
   useEffect(() => {
-    if (user && user.role === UserRole.ADMIN) {
+    if (user && (user.role === UserRole.ADMIN || user.role === UserRole.FRONT_DESK)) {
       fetchNotifications(true);
       fetchUnreadCount();
     }
@@ -111,8 +111,8 @@ export const useAdminNotifications = () => {
 
   useEffect(() => {
     console.log('[WebSocket] useEffect triggered. User:', user);
-    if (!user || user.role !== UserRole.ADMIN) {
-      console.log('[WebSocket] Connection aborted. Reason: User is either null or not ADMIN.');
+    if (!user || (user.role !== UserRole.ADMIN && user.role !== UserRole.FRONT_DESK)) {
+      console.log('[WebSocket] Connection aborted. Reason: User is either null or not authorized.');
       return;
     }
 

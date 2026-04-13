@@ -14,14 +14,17 @@ import {
   Receipt,
   Calculator,
   BookOpen,
-  Settings
+  Settings,
+  Shield
 } from 'lucide-react';
 import { cn } from '../utils';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { getVisibleAdminMenuItems } from '../utils/adminNavigation';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
+  { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
+  { icon: Shield, label: 'Front Desk', path: '/admin/front-desk' },
   { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
   { icon: Package, label: 'Products', path: '/admin/products' },
   { icon: Tag, label: 'Categories', path: '/admin/categories' },
@@ -37,12 +40,14 @@ const menuItems = [
 
 export const AdminSidebar = () => {
   const location = useLocation();
-  const { logout } = useAuth();
+  const { user, logout, hasPermission } = useAuth();
   const [isCollapsed, setIsCollapsed] = useState(false);
+
+  const filteredMenuItems = getVisibleAdminMenuItems(menuItems, user, hasPermission);
 
   return (
     <aside className={cn(
-      "bg-white dark:bg-zinc-950 border-r border-[#E5E5E5] dark:border-zinc-800 h-[calc(100vh-64px)] sticky top-16 hidden lg:flex flex-col transition-all duration-300",
+      "bg-white dark:bg-zinc-950 border-r border-[#E5E5E5] dark:border-zinc-800 h-[calc(100vh-64px)] sticky top-16 hidden lg:flex flex-col overflow-hidden transition-all duration-300",
       isCollapsed ? "w-20" : "w-64"
     )}>
       <div className="p-4 flex justify-end">
@@ -54,14 +59,14 @@ export const AdminSidebar = () => {
         </button>
       </div>
 
-      <div className="flex-1 px-4">
+      <div className="flex-1 overflow-y-auto custom-scrollbar px-4 pb-4">
         {!isCollapsed && (
           <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#999999] mb-6 px-4">
             Management
           </p>
         )}
         <nav className="space-y-1">
-          {menuItems.map((item) => {
+          {filteredMenuItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <Link

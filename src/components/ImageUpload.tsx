@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { useDropzone, type DropzoneOptions } from 'react-dropzone';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
 import { cn } from '../utils';
 
@@ -39,14 +39,19 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
     onChange(newImages);
   };
 
-  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+  const dropzoneOptions: DropzoneOptions = {
     onDrop,
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg', '.webp']
     },
     disabled: images.length >= maxFiles,
-    multiple: maxFiles > 1
-  });
+    multiple: maxFiles > 1,
+    onDragEnter: () => {},
+    onDragOver: () => {},
+    onDragLeave: () => {},
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone(dropzoneOptions);
 
   return (
     <div className={cn("space-y-4", className)}>

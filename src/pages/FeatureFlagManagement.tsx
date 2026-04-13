@@ -29,11 +29,12 @@ export const FeatureFlagManagement = () => {
         }
     };
 
-    const handleUpdate = async (flag: FeatureFlagResponse, adminEnabled: boolean, customerEnabled: boolean) => {
+    const handleUpdate = async (flag: FeatureFlagResponse, adminEnabled: boolean, frontDeskEnabled: boolean, customerEnabled: boolean) => {
         setIsSaving(flag.featureKey);
         try {
             const updated = await featureFlagService.updateFeatureFlag(flag.featureKey, {
                 adminEnabled,
+                frontDeskEnabled,
                 customerEnabled
             });
             setFlags(prev => prev.map(f => f.featureKey === updated.featureKey ? updated : f));
@@ -96,7 +97,18 @@ export const FeatureFlagManagement = () => {
                                         </div>
                                         <Checkbox
                                             checked={flag.adminEnabled}
-                                            onChange={(val) => handleUpdate(flag, val, flag.customerEnabled)}
+                                            onChange={(val) => handleUpdate(flag, val, flag.frontDeskEnabled, flag.customerEnabled)}
+                                            disabled={isSaving === flag.featureKey}
+                                        />
+                                    </div>
+
+                                    <div className="flex items-center justify-between p-3 bg-[#F5F5F5] dark:bg-zinc-800 rounded-xl">
+                                        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#666666] dark:text-zinc-400">
+                                            <Shield className="h-3.5 w-3.5" /> Front Desk
+                                        </div>
+                                        <Checkbox
+                                            checked={flag.frontDeskEnabled}
+                                            onChange={(val) => handleUpdate(flag, flag.adminEnabled, val, flag.customerEnabled)}
                                             disabled={isSaving === flag.featureKey}
                                         />
                                     </div>
@@ -107,7 +119,7 @@ export const FeatureFlagManagement = () => {
                                         </div>
                                         <Checkbox
                                             checked={flag.customerEnabled}
-                                            onChange={(val) => handleUpdate(flag, flag.adminEnabled, val)}
+                                            onChange={(val) => handleUpdate(flag, flag.adminEnabled, flag.frontDeskEnabled, val)}
                                             disabled={isSaving === flag.featureKey}
                                         />
                                     </div>

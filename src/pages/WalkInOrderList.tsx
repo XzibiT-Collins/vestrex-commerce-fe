@@ -6,10 +6,16 @@ import { formatPrice } from '../utils';
 import { walkInService } from '../services/walkInService';
 import { WalkInOrderResponse, WalkInOrderStatus } from '../types';
 import toast from 'react-hot-toast';
-import { Printer, Eye } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Printer, Eye, ShieldAlert, Plus } from 'lucide-react';
+import { Button } from '../components/Button';
 
 export const WalkInOrderList = () => {
   const navigate = useNavigate();
+  const { hasPermission } = useAuth();
+  const canView = hasPermission('WALK_IN_ORDER_VIEW');
+  const canCreate = hasPermission('WALK_IN_ORDER_CREATE');
+
   const [orders, setOrders] = useState<WalkInOrderResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(0);
@@ -99,12 +105,29 @@ export const WalkInOrderList = () => {
     }
   };
 
+  if (!canView) {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+        <div className="h-20 w-20 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500 mb-6">
+          <ShieldAlert className="h-10 w-10" />
+        </div>
+        <h2 className="text-2xl font-serif font-bold dark:text-white mb-2">Access Restricted</h2>
+        <p className="text-[#666666] dark:text-zinc-400 max-w-md mx-auto">
+          You do not have permission to view the walk-in order history. Please contact your administrator if you believe this is an error.
+        </p>
+        <Button variant="outline" className="mt-8" onClick={() => navigate('/admin')}>
+          Back to Dashboard
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <AdminTable
       title="Walk-In Orders"
       data={orders}
       columns={columns}
-      onAdd={() => navigate('/admin/walk-in/new')}
+      onAdd={canCreate ? () => navigate('/admin/walk-in/new') : undefined}
       onEdit={(o) => navigate(`/admin/walk-in/${o.orderNumber}`)}
       isLoading={isLoading}
       currentPage={page + 1}

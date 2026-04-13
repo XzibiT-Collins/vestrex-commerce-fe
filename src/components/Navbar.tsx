@@ -10,6 +10,7 @@ import { UserRole, ProductListing } from '../types';
 import { productService } from '../services/productService';
 import { useDebounce } from '../hooks/useDebounce';
 import { motion, AnimatePresence } from 'motion/react';
+import { getAdminHomePath } from '../utils/adminNavigation';
 
 export const Navbar = () => {
   const { user, logout } = useAuth();
@@ -203,9 +204,13 @@ export const Navbar = () => {
 
             {user ? (
               <div className="flex items-center gap-2 border-l border-[#E5E5E5] dark:border-zinc-800 pl-4">
-                {user.role === UserRole.ADMIN ? (
-                  <Link to="/admin">
-                    <Button variant="ghost" size="icon" title="Admin Dashboard">
+                {user.role === UserRole.ADMIN || user.role === UserRole.FRONT_DESK ? (
+                  <Link to={getAdminHomePath(user)}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      title={user.role === UserRole.FRONT_DESK ? 'Walk-In Orders' : 'Admin Dashboard'}
+                    >
                       <LayoutDashboard className="h-5 w-5" />
                     </Button>
                   </Link>
@@ -278,8 +283,10 @@ export const Navbar = () => {
           <hr className="border-[#E5E5E5] dark:border-zinc-800" />
           {user ? (
             <>
-              {user.role === UserRole.ADMIN ? (
-                <Link to="/admin" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-zinc-900 dark:text-white">Admin Dashboard</Link>
+              {user.role === UserRole.ADMIN || user.role === UserRole.FRONT_DESK ? (
+                <Link to={getAdminHomePath(user)} onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-zinc-900 dark:text-white">
+                  {user.role === UserRole.FRONT_DESK ? 'Walk-In Orders' : 'Admin Dashboard'}
+                </Link>
               ) : (
                 <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="block text-lg font-medium text-zinc-900 dark:text-white">My Profile</Link>
               )}

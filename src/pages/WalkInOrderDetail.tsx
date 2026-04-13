@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Package, Calendar, CreditCard, User, Printer, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { ArrowLeft, Package, Calendar, CreditCard, User, Printer, CheckCircle, XCircle, AlertCircle, ShieldAlert } from 'lucide-react';
 import { Button } from '../components/Button';
 import { Badge } from '../components/Badge';
 import { walkInService } from '../services/walkInService';
@@ -11,6 +12,10 @@ import toast from 'react-hot-toast';
 export const WalkInOrderDetail = () => {
     const { orderNumber } = useParams<{ orderNumber: string }>();
     const navigate = useNavigate();
+    const { hasPermission } = useAuth();
+    const canView = hasPermission('WALK_IN_ORDER_VIEW');
+    const canMarkPrinted = hasPermission('WALK_IN_ORDER_MARK_RECEIPT_PRINTED');
+
     const [order, setOrder] = useState<WalkInOrderResponse | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isUpdating, setIsUpdating] = useState(false);
@@ -132,6 +137,23 @@ export const WalkInOrderDetail = () => {
         );
     }
 
+    if (!canView) {
+        return (
+            <div className="flex flex-col items-center justify-center py-20 px-4 text-center">
+                <div className="h-20 w-20 rounded-full bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500 mb-6">
+                    <ShieldAlert className="h-10 w-10" />
+                </div>
+                <h2 className="text-2xl font-serif font-bold dark:text-white mb-2">Access Restricted</h2>
+                <p className="text-[#666666] dark:text-zinc-400 max-w-md mx-auto">
+                    You do not have permission to view walk-in order details.
+                </p>
+                <Button variant="outline" className="mt-8" onClick={() => navigate('/admin/walk-in')}>
+                    Back to List
+                </Button>
+            </div>
+        );
+    }
+
     if (!order) return null;
 
     const statusColors: Record<string, 'success' | 'warning' | 'danger' | 'info'> = {
@@ -152,13 +174,15 @@ export const WalkInOrderDetail = () => {
                 </button>
 
                 <div className="flex items-center gap-3">
-                    <button
-                        onClick={handlePrintReceipt}
-                        className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold hover:opacity-90 transition-all shadow-lg"
-                    >
-                        <Printer className="h-4 w-4" />
-                        Print & Mark Receipt
-                    </button>
+                    {canMarkPrinted && (
+                        <button
+                            onClick={handlePrintReceipt}
+                            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold hover:opacity-90 transition-all shadow-lg"
+                        >
+                            <Printer className="h-4 w-4" />
+                            Print & Mark Receipt
+                        </button>
+                    )}
                 </div>
             </div>
 

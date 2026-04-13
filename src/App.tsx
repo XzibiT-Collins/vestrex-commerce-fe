@@ -45,6 +45,10 @@ import { VerifyOtp } from './pages/VerifyOtp';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { ResetPassword } from './pages/ResetPassword';
 import { FeatureFlagManagement } from './pages/FeatureFlagManagement';
+import { FrontDeskUserManagement } from './pages/FrontDeskUserManagement';
+import { FrontDeskTemplate } from './pages/FrontDeskTemplate';
+import { FrontDeskUserPermissions } from './pages/FrontDeskUserPermissions';
+import { AdminHomeRedirect } from './components/AdminHomeRedirect';
 
 export default function App() {
   return (
@@ -76,25 +80,33 @@ export default function App() {
                   <Route path="/profile" element={<CustomerProfile />} />
                 </Route>
 
-                {/* Admin Routes */}
-                <Route element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]} />}>
-                  <Route path="/admin" element={<AdminDashboard />} />
-                  <Route path="/admin/analytics" element={<Analytics />} />
+                {/* Admin/Front Desk Shared Routes */}
+                <Route element={<ProtectedRoute allowedRoles={[UserRole.ADMIN, UserRole.FRONT_DESK]} />}>
+                  <Route path="/admin" element={<AdminHomeRedirect />} />
+                  <Route path="/admin/dashboard" element={<AdminDashboard />} />
                   <Route path="/admin/products" element={<ProductManagement />} />
                   <Route path="/admin/products/:productId" element={<AdminProductDetails />} />
-                  <Route path="/admin/categories" element={<CategoryManagement />} />
-                  <Route path="/admin/orders" element={<OrderManagement />} />
-                  <Route path="/admin/orders/:orderNumber" element={<OrderDetail />} />
                   <Route path="/admin/walk-in" element={<WalkInOrderList />} />
                   <Route path="/admin/walk-in/new" element={<WalkInOrderCreation />} />
                   <Route path="/admin/walk-in/:orderNumber" element={<WalkInOrderDetail />} />
-                  <Route path="/admin/coupons" element={<CouponManagement />} />
-                  <Route path="/admin/taxes" element={<TaxManagement />} />
                   <Route path="/admin/customers" element={<CustomerManagement />} />
                   <Route path="/admin/customers/:id" element={<CustomerDetails />} />
+                </Route>
+
+                {/* Admin Only Routes */}
+                <Route element={<ProtectedRoute allowedRoles={[UserRole.ADMIN]} />}>
+                  <Route path="/admin/analytics" element={<Analytics />} />
+                  <Route path="/admin/categories" element={<CategoryManagement />} />
+                  <Route path="/admin/orders" element={<OrderManagement />} />
+                  <Route path="/admin/orders/:orderNumber" element={<OrderDetail />} />
+                  <Route path="/admin/coupons" element={<CouponManagement />} />
+                  <Route path="/admin/taxes" element={<TaxManagement />} />
                   <Route path="/admin/accounting" element={<Accounting />} />
                   <Route path="/admin/bookkeeping" element={<Bookkeeping />} />
                   <Route path="/admin/settings" element={<FeatureFlagManagement />} />
+                  <Route path="/admin/front-desk" element={<FrontDeskUserManagement />} />
+                  <Route path="/admin/front-desk/template" element={<FrontDeskTemplate />} />
+                  <Route path="/admin/front-desk/users/:userId/permissions" element={<FrontDeskUserPermissions />} />
                 </Route>
               </Routes>
             </Layout>
