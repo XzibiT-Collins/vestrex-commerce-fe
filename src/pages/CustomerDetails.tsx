@@ -92,8 +92,8 @@ export const CustomerDetails = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-2xl flex items-center justify-between col-span-1 md:col-span-2">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+        <div className="bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 p-6 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 col-span-2">
           <div className="flex items-center gap-4">
             <div className="h-14 w-14 rounded-full bg-accent/10 flex items-center justify-center">
               <User className="h-7 w-7 text-accent-dark" />

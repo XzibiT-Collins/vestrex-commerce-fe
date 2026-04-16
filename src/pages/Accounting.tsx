@@ -93,7 +93,7 @@ export const Accounting = () => {
     if (!summary) return null;
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
           <MetricCard title="Total Revenue" value={fmt(summary.totalRevenue)} icon={TrendingUp} isPositive={true} />
           <MetricCard title="Total Expenses" value={fmt(summary.totalExpenses)} icon={TrendingDown} isPositive={false} />
           <MetricCard title="Net Profit" value={fmt(summary.netProfit)} icon={DollarSign} isPositive={(summary.netProfit || 0) >= 0} />
@@ -109,7 +109,7 @@ export const Accounting = () => {
     if (!incomeStatement) return null;
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
           <MetricCard title="Gross Profit" value={fmt(incomeStatement.grossProfit)} icon={TrendingUp} />
           <MetricCard title="Net Profit" value={fmt(incomeStatement.netProfit)} icon={DollarSign} isPositive={(incomeStatement.netProfit || 0) >= 0} />
           <MetricCard title="Total Revenue" value={fmt(incomeStatement.totalRevenue)} icon={TrendingUp} isPositive={true} />
@@ -149,7 +149,7 @@ export const Accounting = () => {
     if (!balanceSheet) return null;
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
           <MetricCard title="Total Assets" value={fmt(balanceSheet.totalAssets)} icon={Briefcase} />
           <MetricCard title="Total Liabilities" value={fmt(balanceSheet.totalLiabilities)} icon={Briefcase} />
           <MetricCard title="Total Equity" value={fmt(balanceSheet.totalEquity)} icon={Briefcase} />
@@ -188,7 +188,7 @@ export const Accounting = () => {
 
     return (
       <div className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-6">
           <MetricCard title="Total Inflows" value={fmt(cashFlow.totalInflows)} icon={TrendingUp} isPositive={true} />
           <MetricCard title="Total Outflows" value={fmt(cashFlow.totalOutflows)} icon={TrendingDown} isPositive={false} />
           <MetricCard title="Net Cash Flow" value={fmt(cashFlow.netCashFlow)} icon={DollarSign} isPositive={(cashFlow.netCashFlow || 0) >= 0} />
@@ -307,10 +307,12 @@ export const Accounting = () => {
 
         {/* Date Filter available for income, cashflow, and journal(all) tabs */}
         {['income', 'cashflow', 'journal'].includes(activeTab) && !(activeTab === 'journal' && journalType !== 'all') && (
-          <div className="flex items-end gap-4 bg-white dark:bg-zinc-900 p-2 border border-zinc-200 dark:border-zinc-800 rounded-xl">
-            <Input label="Start Date" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-            <Input label="End Date" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-            <Button onClick={fetchData} className="w-24 h-11">Filter</Button>
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-4 bg-white dark:bg-zinc-900 p-3 sm:p-2 border border-zinc-200 dark:border-zinc-800 rounded-xl w-full md:w-auto">
+            <div className="flex gap-3 w-full">
+              <Input label="Start Date" type="date" value={startDate} min={new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split('T')[0]} max={endDate || new Date().toISOString().split('T')[0]} onChange={(e) => setStartDate(e.target.value)} containerClassName="flex-1" />
+              <Input label="End Date" type="date" value={endDate} min={startDate || new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split('T')[0]} max={new Date().toISOString().split('T')[0]} onChange={(e) => setEndDate(e.target.value)} containerClassName="flex-1" />
+            </div>
+            <Button onClick={fetchData} className="w-full sm:w-24 h-11 shrink-0 mt-1 sm:mt-0">Filter</Button>
           </div>
         )}
       </div>

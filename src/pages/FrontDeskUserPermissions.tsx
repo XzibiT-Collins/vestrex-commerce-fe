@@ -91,11 +91,8 @@ export const FrontDeskUserPermissions = () => {
             <ArrowLeft className="h-6 w-6 dark:text-white" />
           </button>
           <div>
-            <h1 className="text-3xl font-serif font-bold dark:text-white flex items-center gap-3">
-              <Key className="h-8 w-8 text-accent" />
-              User Permissions
-            </h1>
-            <p className="text-[#666666] dark:text-zinc-400">Configure specific overrides for this staff member.</p>
+            <h1 className="text-2xl font-bold dark:text-white">User Permissions</h1>
+            <p className="text-sm text-zinc-500 mt-1">Configure specific overrides for this staff member.</p>
           </div>
         </div>
         <Button onClick={handleSave} isLoading={isSaving} disabled={isLoading}>
@@ -141,7 +138,8 @@ export const FrontDeskUserPermissions = () => {
 
           {/* Permissions Table */}
           <div className="bg-white dark:bg-zinc-900 rounded-[2.5rem] shadow-sm border border-[#F5F5F5] dark:border-zinc-800 overflow-hidden">
-            <table className="w-full text-left">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left min-w-[800px]">
               <thead>
                 <tr className="border-b border-[#F5F5F5] dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-800/50">
                   <th className="px-8 py-4 text-xs font-bold uppercase tracking-widest text-[#999999]">Permission</th>
@@ -201,6 +199,7 @@ export const FrontDeskUserPermissions = () => {
                 })}
               </tbody>
             </table>
+            </div>
           </div>
 
           <div className="bg-zinc-50 dark:bg-zinc-950/50 rounded-3xl p-8 border border-dashed border-[#E5E5E5] dark:border-zinc-800 flex gap-4">

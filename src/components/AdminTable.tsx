@@ -64,8 +64,8 @@ export function AdminTable<T>({
     >
       <div className="p-8 border-b border-[#F5F5F5] dark:border-zinc-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h3 className="text-xl font-bold dark:text-white">{title}</h3>
-          <p className="text-sm text-[#666666] dark:text-zinc-400">Manage your {title.toLowerCase()} here.</p>
+          <h1 className="text-2xl font-bold dark:text-white">{title}</h1>
+          <p className="text-sm text-zinc-500 mt-1">Manage your {title.toLowerCase()} here.</p>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 w-full lg:w-auto">
           {filterNodes}

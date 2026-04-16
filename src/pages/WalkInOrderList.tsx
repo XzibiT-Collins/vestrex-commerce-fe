@@ -50,7 +50,7 @@ export const WalkInOrderList = () => {
     {
       header: 'Order #',
       accessor: (o: WalkInOrderResponse) => (
-        <span 
+        <span
           className="font-bold text-zinc-900 dark:text-white hover:underline cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
@@ -137,9 +137,11 @@ export const WalkInOrderList = () => {
       itemsPerPage={10}
       filterNodes={
         <div className="flex items-center gap-2">
-           <input
+          <input
             type="date"
             value={date}
+            min={new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split('T')[0]}
+            max={new Date().toISOString().split('T')[0]}
             onChange={(e) => { setDate(e.target.value); setPage(0); }}
             className="px-4 py-2 bg-zinc-100 dark:bg-zinc-800 dark:text-white rounded-xl text-sm border-none focus:ring-1 focus:ring-accent outline-none"
           />

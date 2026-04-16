@@ -145,17 +145,17 @@ export const OrderDetail = () => {
 
     return (
         <div className="space-y-8 pb-12">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <button
                     onClick={() => navigate('/admin/orders')}
-                    className="flex items-center gap-2 text-[#666666] hover:text-[#1A1A1A] dark:text-zinc-400 dark:hover:text-white transition-colors"
+                    className="flex items-center gap-2 text-[#666666] hover:text-[#1A1A1A] dark:text-zinc-400 dark:hover:text-white transition-colors self-start"
                 >
-                    <ArrowLeft className="h-4 w-4" />
+                    <ArrowLeft className="h-4 w-4 shrink-0" />
                     <span className="text-sm font-medium">Back to Orders</span>
                 </button>
 
-                <div className="flex items-center gap-3">
-                    <div className="w-52">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+                    <div className="w-full sm:w-52 shrink-0">
                         <Dropdown
                             value={order.deliveryStatus}
                             onChange={(val) => handleStatusUpdate(val as DeliveryStatus)}
@@ -164,9 +164,9 @@ export const OrderDetail = () => {
                     </div>
                     <button
                         onClick={handlePrintReceipt}
-                        className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-[#E5E5E5] dark:border-zinc-700 text-sm font-semibold text-[#666666] dark:text-zinc-300 hover:bg-[#F5F5F5] dark:hover:bg-zinc-800 transition-colors"
+                        className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-[#E5E5E5] dark:border-zinc-700 text-sm font-semibold text-[#666666] dark:text-zinc-300 hover:bg-[#F5F5F5] dark:hover:bg-zinc-800 transition-colors w-full sm:w-auto shrink-0"
                     >
-                        <Printer className="h-4 w-4" />
+                        <Printer className="h-4 w-4 shrink-0" />
                         Print Receipt
                     </button>
                 </div>

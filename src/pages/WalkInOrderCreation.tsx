@@ -325,44 +325,50 @@ export const WalkInOrderCreation = () => {
               ) : (
                 <div className="divide-y divide-[#F5F5F5] dark:divide-zinc-800">
                   {cart.map((item) => (
-                    <div key={item.productId} className="flex items-center gap-4 py-4 first:pt-0 last:pb-0">
-                       <div className="h-16 w-16 rounded-xl bg-zinc-50 dark:bg-zinc-800 overflow-hidden flex-shrink-0 border border-[#F5F5F5] dark:border-zinc-800">
-                          {item.productImageUrl ? (
-                             <img src={item.productImageUrl} className="w-full h-full object-cover" />
-                          ) : (
-                             <div className="w-full h-full flex items-center justify-center text-[#999999]">
-                                <Package className="h-6 w-6" />
-                             </div>
-                          )}
+                    <div key={item.productId} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 first:pt-0 last:pb-0">
+                       <div className="flex items-center gap-4 w-full sm:w-auto flex-1 min-w-0">
+                           <div className="h-16 w-16 rounded-xl bg-zinc-50 dark:bg-zinc-800 overflow-hidden flex-shrink-0 border border-[#F5F5F5] dark:border-zinc-800">
+                              {item.productImageUrl ? (
+                                 <img src={item.productImageUrl} className="w-full h-full object-cover" />
+                              ) : (
+                                 <div className="w-full h-full flex items-center justify-center text-[#999999]">
+                                    <Package className="h-6 w-6" />
+                                 </div>
+                              )}
+                           </div>
+                           <div className="flex-1 min-w-0">
+                              <p className="font-bold text-sm truncate dark:text-white">{item.productName}</p>
+                              <p className="text-xs text-[#999999]">{item.price} each</p>
+                           </div>
                        </div>
-                       <div className="flex-1 min-w-0">
-                          <p className="font-bold text-sm truncate dark:text-white">{item.productName}</p>
-                          <p className="text-xs text-[#999999]">{item.price} each</p>
+                       <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+                           <div className="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-800 p-1.5 rounded-xl shrink-0">
+                              <button 
+                                onClick={() => updateQuantity(item.productId, -1)} 
+                                className="h-8 w-8 flex items-center justify-center hover:bg-white dark:hover:bg-zinc-700 rounded-lg text-zinc-500 transition-colors"
+                              >
+                                 <Minus className="h-3.5 w-3.5" />
+                              </button>
+                              <span className="w-8 text-center font-bold text-sm dark:text-white">{item.quantity}</span>
+                              <button 
+                                onClick={() => updateQuantity(item.productId, 1)} 
+                                className="h-8 w-8 flex items-center justify-center hover:bg-white dark:hover:bg-zinc-700 rounded-lg text-zinc-500 transition-colors"
+                              >
+                                 <Plus className="h-3.5 w-3.5" />
+                              </button>
+                           </div>
+                           <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+                               <div className="text-right min-w-[70px] sm:w-28">
+                                  <p className="font-bold dark:text-white">{formatPrice(parsePrice(item.price) * item.quantity)}</p>
+                               </div>
+                               <button 
+                                 onClick={() => removeFromCart(item.productId)} 
+                                 className="p-2 text-zinc-300 hover:text-red-500 transition-colors"
+                               >
+                                  <Trash2 className="h-5 w-5" />
+                               </button>
+                           </div>
                        </div>
-                       <div className="flex items-center gap-3 bg-zinc-50 dark:bg-zinc-800 p-1.5 rounded-xl">
-                          <button 
-                            onClick={() => updateQuantity(item.productId, -1)} 
-                            className="h-8 w-8 flex items-center justify-center hover:bg-white dark:hover:bg-zinc-700 rounded-lg text-zinc-500 transition-colors"
-                          >
-                             <Minus className="h-3.5 w-3.5" />
-                          </button>
-                          <span className="w-8 text-center font-bold text-sm dark:text-white">{item.quantity}</span>
-                          <button 
-                            onClick={() => updateQuantity(item.productId, 1)} 
-                            className="h-8 w-8 flex items-center justify-center hover:bg-white dark:hover:bg-zinc-700 rounded-lg text-zinc-500 transition-colors"
-                          >
-                             <Plus className="h-3.5 w-3.5" />
-                          </button>
-                       </div>
-                       <div className="w-28 text-right">
-                          <p className="font-bold dark:text-white">{formatPrice(parsePrice(item.price) * item.quantity)}</p>
-                       </div>
-                       <button 
-                         onClick={() => removeFromCart(item.productId)} 
-                         className="p-2 text-zinc-300 hover:text-red-500 transition-colors"
-                       >
-                          <Trash2 className="h-5 w-5" />
-                       </button>
                     </div>
                   ))}
                 </div>

@@ -33,20 +33,20 @@ import { Badge } from '../components/Badge';
 import { EmptyState } from '../components/EmptyState';
 import { motion } from 'motion/react';
 import { adminMetricService } from '../services/adminMetricService';
-import { CouponMetricResponse, MostPurchaseProductResponse, SiteVisitMetric, TopCustomer, LowStockProduct } from '../types';
+import { CouponMetricResponse, MostPurchaseProductResponse, SiteVisitMetric, TopCustomer, LowStockProduct, SalesAnalyticsResponse } from '../types';
 import toast from 'react-hot-toast';
-
-const COLORS = ['#FFD1DC', '#FFB7C5', '#FF8DA1', '#E5E5E5'];
-
-const salesAnalytics = {
-  revenueBreakdown: [],
-  orderStatus: [],
-  miniStats: [
-    { label: 'Avg Order Value', value: 'GHS 0.00', trend: '0%', isUp: true },
-    { label: 'Total Revenue', value: 'GHS 0.00', trend: '0%', isUp: true },
-    { label: 'Total Paid Orders', value: '0', trend: '0%', isUp: true },
-  ]
+const getStatusColor = (statusName: string) => {
+  const normalized = statusName.toUpperCase();
+  if (normalized.includes('COMPLETED')) return '#FFD1DC'; // Pink for walk-in COMPLETED
+  if (normalized.includes('DELIVERED')) return '#10b981';
+  if (normalized.includes('PACKING')) return '#6b7280';
+  if (normalized.includes('PENDING')) return '#f97316';
+  if (normalized.includes('OUT')) return '#84cc16';
+  if (normalized.includes('CANCELLED')) return '#ef4444';
+  return '#10b981'; // Default as green/success
 };
+
+
 
 const couponPerformance = {
   metrics: [
@@ -89,13 +89,43 @@ const BarTooltip = ({ active, payload, label }: any) => {
   );
 };
 
+const RevenueTooltip = ({ active, payload, label }: any) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-[#1A1A1A] dark:bg-zinc-800 text-white rounded-2xl px-4 py-3 shadow-xl text-sm">
+      <p className="font-bold mb-1 text-[#FFD1DC]">{label}</p>
+      <p className="text-white">{formatPrice(payload[0].value || 0)}</p>
+    </div>
+  );
+};
+
+const PieTooltip = ({ active, payload }: any) => {
+  if (!active || !payload?.length) return null;
+  const name = payload[0].name;
+  const isCompleted = name.toUpperCase().includes('COMPLETED');
+  return (
+    <div className="bg-[#1A1A1A] dark:bg-zinc-800 text-white rounded-2xl px-4 py-3 shadow-xl text-sm">
+      <p className="font-bold mb-1" style={{ color: payload[0].payload?.fill || '#FFD1DC' }}>
+        {name} {isCompleted && <span className="text-[10px] opacity-70 ml-1">(Walk-in)</span>}
+      </p>
+      <p className="text-white">{payload[0].value?.toLocaleString()} orders</p>
+    </div>
+  );
+};
+
 export const Analytics = () => {
   const [salesRange, setSalesRange] = useState('Day');
+  const [fromDate, setFromDate] = useState<string>('');
+  const [toDate, setToDate] = useState<string>('');
+  const [salesAnalytics, setSalesAnalytics] = useState<SalesAnalyticsResponse | null>(null);
+  
   const [couponData, setCouponData] = useState<CouponMetricResponse | null>(null);
   const [topProducts, setTopProducts] = useState<MostPurchaseProductResponse[]>([]);
   const [siteMetrics, setSiteMetrics] = useState<SiteVisitMetric | null>(null);
   const [topCustomers, setTopCustomers] = useState<TopCustomer[]>([]);
   const [lowStockProducts, setLowStockProducts] = useState<LowStockProduct[]>([]);
+  
+  const [isLoadingSales, setIsLoadingSales] = useState(true);
   const [isLoadingCoupons, setIsLoadingCoupons] = useState(true);
   const [isLoadingProducts, setIsLoadingProducts] = useState(true);
   const [isLoadingSiteMetrics, setIsLoadingSiteMetrics] = useState(true);
@@ -109,6 +139,27 @@ export const Analytics = () => {
     fetchTopCustomers();
     fetchLowStockProducts();
   }, []);
+
+  useEffect(() => {
+    if ((fromDate && !toDate) || (!fromDate && toDate)) {
+      return;
+    }
+    fetchSalesAnalytics();
+  }, [salesRange, fromDate, toDate]);
+
+  const fetchSalesAnalytics = async () => {
+    try {
+      setIsLoadingSales(true);
+      const granularity = salesRange ? salesRange.toUpperCase() : undefined;
+      const data = await adminMetricService.getSalesAnalytics(granularity, fromDate || undefined, toDate || undefined);
+      setSalesAnalytics(data);
+    } catch (err) {
+      console.error('Failed to fetch sales analytics', err);
+      toast.error('Failed to load sales analytics');
+    } finally {
+      setIsLoadingSales(false);
+    }
+  };
 
   const fetchSiteMetrics = async () => {
     try {
@@ -177,7 +228,13 @@ export const Analytics = () => {
     { label: 'Revenue Generated', value: formatPrice(couponData?.totalRevenueGenerated || '0') },
   ];
   return (
-    <div className="space-y-12 max-w-[1600px] mx-auto pb-20">
+    <div className="space-y-12 max-w-[1600px] mx-auto pb-20 pt-8 px-6">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold dark:text-white">Analytics</h1>
+          <p className="text-sm text-zinc-500 mt-1">Comprehensive store performance and metrics.</p>
+        </div>
+      </div>
       {/* SECTION 1 — Sales Analytics */}
       <section className="space-y-6">
         <div className="flex items-center gap-3">
@@ -190,27 +247,52 @@ export const Analytics = () => {
             animate={{ opacity: 1, y: 0 }}
             className="lg:col-span-2 bg-white dark:bg-zinc-900 p-8 rounded-[2.5rem] card-shadow border border-[#F5F5F5] dark:border-zinc-800"
           >
-            <div className="flex justify-between items-center mb-8">
-              <h3 className="text-lg font-bold dark:text-white">Revenue Breakdown</h3>
-              <div className="flex bg-[#F5F5F5] dark:bg-zinc-800 p-1 rounded-xl">
-                {['Day', 'Week', 'Month', 'Year'].map((t) => (
-                  <button
-                    key={t}
-                    onClick={() => setSalesRange(t)}
-                    className={cn(
-                      "px-4 py-1.5 text-xs font-bold rounded-lg transition-all",
-                      salesRange === t
-                        ? "bg-white dark:bg-zinc-700 text-[#1A1A1A] dark:text-white shadow-sm"
-                        : "text-[#999999] hover:text-[#1A1A1A] dark:hover:text-white"
-                    )}
-                  >
-                    {t}
-                  </button>
-                ))}
+            <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 xl:gap-8 mb-8">
+              <h3 className="text-lg font-bold dark:text-white shrink-0">Revenue Breakdown</h3>
+              <div className="flex flex-col sm:flex-row flex-wrap items-start sm:items-center gap-4 w-full xl:w-auto xl:justify-end">
+                <div className="flex flex-wrap bg-[#F5F5F5] dark:bg-zinc-800 p-1 rounded-xl w-full sm:w-auto shrink-0">
+                  {['Day', 'Week', 'Month', 'Year'].map((t) => (
+                    <button
+                      key={t}
+                      onClick={() => setSalesRange(t)}
+                      className={cn(
+                        "px-4 py-1.5 text-xs font-bold rounded-lg transition-all flex-1 sm:flex-none",
+                        salesRange === t
+                          ? "bg-white dark:bg-zinc-700 text-[#1A1A1A] dark:text-white shadow-sm"
+                          : "text-[#999999] hover:text-[#1A1A1A] dark:hover:text-white"
+                      )}
+                    >
+                      {t}
+                    </button>
+                  ))}
+                </div>
+                <div className="flex items-center gap-2 bg-[#F5F5F5] dark:bg-zinc-800 p-1 rounded-xl text-xs px-2 w-full sm:w-auto shrink-0">
+                  <input 
+                    type="date" 
+                    value={fromDate} 
+                    min={new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split('T')[0]}
+                    max={toDate || new Date().toISOString().split('T')[0]}
+                    onChange={(e) => setFromDate(e.target.value)} 
+                    className="bg-transparent border-none outline-none dark:text-white py-1.5 focus:ring-0 cursor-pointer w-full sm:w-auto" 
+                  />
+                  <span className="text-[#999999] font-bold">to</span>
+                  <input 
+                    type="date" 
+                    value={toDate} 
+                    min={fromDate || new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split('T')[0]}
+                    max={new Date().toISOString().split('T')[0]}
+                    onChange={(e) => setToDate(e.target.value)} 
+                    className="bg-transparent border-none outline-none dark:text-white py-1.5 focus:ring-0 cursor-pointer w-full sm:w-auto" 
+                  />
+                </div>
               </div>
             </div>
-            <div className="h-[350px] w-full">
-              {salesAnalytics.revenueBreakdown.length === 0 ? (
+            <div className="h-[350px] w-full mt-8">
+              {isLoadingSales ? (
+                <div className="h-full flex items-center justify-center text-zinc-500">
+                  <EmptyState icon={<Clock className="w-8 h-8 text-[#999999] dark:text-zinc-500" />} title="Loading analytics..." />
+                </div>
+              ) : !salesAnalytics || salesAnalytics.revenueBreakdown.length === 0 ? (
                 <EmptyState
                   icon={<TrendingUp className="w-8 h-8 text-[#999999] dark:text-zinc-500" />}
                   title="No Revenue Data"
@@ -228,20 +310,20 @@ export const Analytics = () => {
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F5F5F5" />
                     <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#999999' }} />
                     <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#999999' }} />
-                    <Tooltip contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} />
+                    <Tooltip content={<RevenueTooltip />} />
                     <Area type="monotone" dataKey="revenue" stroke="#FFD1DC" strokeWidth={3} fillOpacity={1} fill="url(#colorRev)" />
                   </AreaChart>
                 </ResponsiveContainer>
               )}
             </div>
-            <div className="grid grid-cols-3 gap-6 mt-8">
-              {salesAnalytics.miniStats.map((stat, i) => (
-                <div key={i} className="bg-[#FDFBFB] dark:bg-zinc-950 p-4 rounded-2xl border border-[#F5F5F5] dark:border-zinc-800">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#999999] mb-1">{stat.label}</p>
-                  <div className="flex items-end gap-2">
-                    <p className="text-lg font-bold dark:text-white">{stat.value}</p>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 lg:gap-6 mt-8">
+              {salesAnalytics?.miniStats?.map((stat, i) => (
+                <div key={i} className="bg-[#FDFBFB] dark:bg-zinc-950 p-4 rounded-2xl border border-[#F5F5F5] dark:border-zinc-800 flex flex-col justify-between">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-[#999999] mb-2">{stat.label}</p>
+                  <div>
+                    <p className="text-lg font-bold dark:text-white leading-none mb-1">{stat.value}</p>
                     <span className={cn(
-                      "text-[10px] font-bold mb-1",
+                      "text-[10px] font-bold",
                       stat.isUp ? "text-emerald-600" : "text-red-500"
                     )}>
                       {stat.trend}
@@ -259,7 +341,11 @@ export const Analytics = () => {
             className="bg-white dark:bg-zinc-900 p-8 rounded-[2.5rem] card-shadow border border-[#F5F5F5] dark:border-zinc-800"
           >
             <h3 className="text-lg font-bold mb-8 dark:text-white">Order Status Distribution</h3>
-            {salesAnalytics.orderStatus.length === 0 ? (
+            {isLoadingSales ? (
+              <div className="h-[300px] flex items-center justify-center text-zinc-500">
+                <EmptyState icon={<Clock className="w-8 h-8 text-[#999999] dark:text-zinc-500" />} title="Loading..." />
+              </div>
+            ) : !salesAnalytics || salesAnalytics.orderStatus.length === 0 ? (
               <div className="h-[300px]">
                 <EmptyState
                   icon={<ShoppingBag className="w-8 h-8 text-[#999999] dark:text-zinc-500" />}
@@ -282,24 +368,27 @@ export const Analytics = () => {
                         dataKey="value"
                       >
                         {salesAnalytics.orderStatus.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          <Cell key={`cell-${index}`} fill={getStatusColor(entry.name)} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip content={<PieTooltip />} />
                       <Legend verticalAlign="bottom" height={36} />
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
                 <div className="space-y-4 mt-6">
-                  {salesAnalytics.orderStatus.map((status, i) => (
-                    <div key={i} className="flex justify-between items-center text-sm">
-                      <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full" style={{ backgroundColor: COLORS[i % COLORS.length] }} />
-                        <span className="text-[#666666] dark:text-zinc-400">{status.name}</span>
+                  {(() => {
+                    const totalOrdersCount = salesAnalytics.orderStatus.reduce((acc, curr) => acc + curr.value, 0);
+                    return salesAnalytics.orderStatus.map((status, i) => (
+                      <div key={i} className="flex justify-between items-center text-sm">
+                        <div className="flex items-center gap-2">
+                          <div className="h-2 w-2 rounded-full" style={{ backgroundColor: getStatusColor(status.name) }} />
+                          <span className="text-[#666666] dark:text-zinc-400">{status.name}</span>
+                        </div>
+                        <span className="font-bold dark:text-white">{status.value} ({totalOrdersCount > 0 ? Math.round(status.value / totalOrdersCount * 100) : 0}%)</span>
                       </div>
-                      <span className="font-bold dark:text-white">{status.count} ({Math.round(status.value / 1280 * 100)}%)</span>
-                    </div>
-                  ))}
+                    ));
+                  })()}
                 </div>
               </>
             )}
@@ -552,6 +641,7 @@ export const Analytics = () => {
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/*
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -569,7 +659,7 @@ export const Analytics = () => {
 
                 return (
                   <div key={i} className="space-y-2">
-                    <div className="flex justify-between text-sm">
+                     <div className="flex justify-between text-sm">
                       <span className="text-[#666666] dark:text-zinc-400 font-mono">{page.page}</span>
                       <span className="font-bold dark:text-white">{page.uniqueVisits.toLocaleString()}</span>
                     </div>
@@ -581,11 +671,12 @@ export const Analytics = () => {
               })}
             </div>
           </motion.div>
+          */}
 
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-2 bg-white dark:bg-zinc-900 p-8 rounded-[2.5rem] card-shadow border border-[#F5F5F5] dark:border-zinc-800"
+            className="lg:col-span-3 bg-white dark:bg-zinc-900 p-8 rounded-[2.5rem] card-shadow border border-[#F5F5F5] dark:border-zinc-800"
           >
             <h3 className="text-lg font-bold mb-8 dark:text-white">Traffic vs Orders Comparison</h3>
             <div className="h-[350px] w-full">

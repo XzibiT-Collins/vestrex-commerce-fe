@@ -24,7 +24,6 @@ import { getVisibleAdminMenuItems } from '../utils/adminNavigation';
 
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin/dashboard' },
-  { icon: Shield, label: 'Front Desk', path: '/admin/front-desk' },
   { icon: BarChart3, label: 'Analytics', path: '/admin/analytics' },
   { icon: Package, label: 'Products', path: '/admin/products' },
   { icon: Tag, label: 'Categories', path: '/admin/categories' },
@@ -35,6 +34,7 @@ const menuItems = [
   { icon: Receipt, label: 'Taxes', path: '/admin/taxes' },
   { icon: Calculator, label: 'Accounting', path: '/admin/accounting' },
   { icon: BookOpen, label: 'Bookkeeping', path: '/admin/bookkeeping' },
+  { icon: Shield, label: 'Front Desk', path: '/admin/front-desk' },
   { icon: Settings, label: 'Settings', path: '/admin/settings' },
 ];
 

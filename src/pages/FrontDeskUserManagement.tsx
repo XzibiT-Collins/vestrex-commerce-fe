@@ -100,11 +100,8 @@ export const FrontDeskUserManagement = () => {
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif font-bold mb-2 flex items-center gap-3">
-            <Shield className="h-8 w-8 text-accent" />
-            Front Desk Management
-          </h1>
-          <p className="text-[#666666] dark:text-zinc-400">Manage your front desk staff and POS permissions.</p>
+          <h1 className="text-2xl font-bold dark:text-white">Front Desk Management</h1>
+          <p className="text-sm text-zinc-500 mt-1">Manage your front desk staff and POS permissions.</p>
         </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" onClick={() => navigate('/admin/front-desk/template')}>

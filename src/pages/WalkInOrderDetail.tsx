@@ -164,22 +164,22 @@ export const WalkInOrderDetail = () => {
 
     return (
         <div className="space-y-8 pb-12 max-w-5xl mx-auto">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <button
                     onClick={() => navigate('/admin/walk-in')}
-                    className="flex items-center gap-2 text-[#666666] hover:text-[#1A1A1A] dark:text-zinc-400 dark:hover:text-white transition-colors"
+                    className="flex items-center gap-2 text-[#666666] hover:text-[#1A1A1A] dark:text-zinc-400 dark:hover:text-white transition-colors self-start"
                 >
-                    <ArrowLeft className="h-4 w-4" />
+                    <ArrowLeft className="h-4 w-4 shrink-0" />
                     <span className="text-sm font-medium">Back to Walk-In Orders</span>
                 </button>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 w-full sm:w-auto">
                     {canMarkPrinted && (
                         <button
                             onClick={handlePrintReceipt}
-                            className="flex items-center gap-2 px-6 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold hover:opacity-90 transition-all shadow-lg"
+                            className="flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-sm font-bold hover:opacity-90 transition-all shadow-lg w-full sm:w-auto shrink-0"
                         >
-                            <Printer className="h-4 w-4" />
+                            <Printer className="h-4 w-4 shrink-0" />
                             Print & Mark Receipt
                         </button>
                     )}
@@ -192,7 +192,7 @@ export const WalkInOrderDetail = () => {
                     <div className="bg-white dark:bg-zinc-900 rounded-[2rem] p-8 border border-[#F5F5F5] dark:border-zinc-800 shadow-sm relative overflow-hidden">
                         {/* Decorative background element */}
                         <div className="absolute top-0 right-0 p-8 opacity-[0.03] dark:opacity-[0.05] pointer-events-none">
-                           <ShoppingCartIcon size={200} />
+                            <ShoppingCartIcon size={200} />
                         </div>
 
                         <div className="flex justify-between items-start mb-8">
@@ -206,15 +206,15 @@ export const WalkInOrderDetail = () => {
                             <div className="flex flex-col items-end gap-3">
                                 <Badge variant={statusColors[order.status]}>{order.status}</Badge>
                                 {order.receiptPrinted ? (
-                                   <div className="flex items-center gap-1.5 text-green-500 text-[10px] font-bold uppercase tracking-widest">
-                                      <CheckCircle className="h-3 w-3" />
-                                      Receipt Printed
-                                   </div>
+                                    <div className="flex items-center gap-1.5 text-green-500 text-[10px] font-bold uppercase tracking-widest">
+                                        <CheckCircle className="h-3 w-3" />
+                                        Receipt Printed
+                                    </div>
                                 ) : (
-                                   <div className="flex items-center gap-1.5 text-amber-500 text-[10px] font-bold uppercase tracking-widest">
-                                      <AlertCircle className="h-3 w-3" />
-                                      Receipt Pending
-                                   </div>
+                                    <div className="flex items-center gap-1.5 text-amber-500 text-[10px] font-bold uppercase tracking-widest">
+                                        <AlertCircle className="h-3 w-3" />
+                                        Receipt Pending
+                                    </div>
                                 )}
                             </div>
                         </div>
@@ -271,7 +271,7 @@ export const WalkInOrderDetail = () => {
                             </div>
                             <p className="font-bold dark:text-white text-lg">{order.customerName || 'Walk-In Customer'}</p>
                             {order.customerPhone && (
-                               <p className="text-sm text-zinc-500 mt-1">{order.customerPhone}</p>
+                                <p className="text-sm text-zinc-500 mt-1">{order.customerPhone}</p>
                             )}
                             <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest mt-4">Processed By</p>
                             <p className="text-sm font-medium dark:text-zinc-300">{order.processedBy}</p>
@@ -283,29 +283,29 @@ export const WalkInOrderDetail = () => {
                                 <span className="text-xs font-bold uppercase tracking-widest">Payment</span>
                             </div>
                             <div className="space-y-3">
-                               <div className="flex justify-between items-center">
-                                  <span className="text-xs text-zinc-500">Method</span>
-                                  <span className="text-xs font-bold dark:text-white">{order.paymentMethod}</span>
-                               </div>
-                               <div className="flex justify-between items-center">
-                                  <span className="text-xs text-zinc-500">Amount Paid</span>
-                                  <span className="text-xs font-bold dark:text-white">{order.amountPaid}</span>
-                               </div>
-                               {parseFloat(order.changeGiven.replace(/[^0-9.]/g, '')) > 0 && (
-                                  <div className="flex justify-between items-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                                     <span className="text-xs font-bold text-green-700 dark:text-green-400">Change Given</span>
-                                     <span className="text-xs font-bold text-green-700 dark:text-green-400">{order.changeGiven}</span>
-                                  </div>
-                               )}
+                                <div className="flex justify-between items-center">
+                                    <span className="text-xs text-zinc-500">Method</span>
+                                    <span className="text-xs font-bold dark:text-white">{order.paymentMethod}</span>
+                                </div>
+                                <div className="flex justify-between items-center">
+                                    <span className="text-xs text-zinc-500">Amount Paid</span>
+                                    <span className="text-xs font-bold dark:text-white">{order.amountPaid}</span>
+                                </div>
+                                {parseFloat(order.changeGiven.replace(/[^0-9.]/g, '')) > 0 && (
+                                    <div className="flex justify-between items-center p-2 bg-green-50 dark:bg-green-900/20 rounded-lg">
+                                        <span className="text-xs font-bold text-green-700 dark:text-green-400">Change Given</span>
+                                        <span className="text-xs font-bold text-green-700 dark:text-green-400">{order.changeGiven}</span>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
 
                     <div className="p-6 rounded-[2rem] bg-accent/5 border border-accent/10">
-                       <p className="text-xs text-accent font-bold uppercase tracking-widest mb-2">POS Note</p>
-                       <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
-                          This order was processed in-store. Stock has been automatically deducted from the inventory.
-                       </p>
+                        <p className="text-xs text-accent font-bold uppercase tracking-widest mb-2">POS Note</p>
+                        <p className="text-xs text-zinc-600 dark:text-zinc-400 leading-relaxed">
+                            This order was processed in-store. Stock has been automatically deducted from the inventory.
+                        </p>
                     </div>
                 </div>
             </div>
@@ -314,7 +314,7 @@ export const WalkInOrderDetail = () => {
 };
 
 const ShoppingCartIcon = ({ size }: { size: number }) => (
-   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M3 3H5L5.4 5M5.4 5H21L19 13H7M5.4 5L7 13M7 13L4.707 15.293C4.077 15.923 4.523 17 5.414 17H19M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM9 17C7.89543 17 7 17.8954 7 19C7 20.1046 7.89543 21 9 21C10.1046 21 11 20.1046 11 19C11 17.8954 10.1046 17 9 17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-   </svg>
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M3 3H5L5.4 5M5.4 5H21L19 13H7M5.4 5L7 13M7 13L4.707 15.293C4.077 15.923 4.523 17 5.414 17H19M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM9 17C7.89543 17 7 17.8954 7 19C7 20.1046 7.89543 21 9 21C10.1046 21 11 20.1046 11 19C11 17.8954 10.1046 17 9 17Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
 );

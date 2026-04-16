@@ -89,11 +89,8 @@ export const FrontDeskTemplate = () => {
             <ArrowLeft className="h-6 w-6 dark:text-white" />
           </button>
           <div>
-            <h1 className="text-3xl font-serif font-bold dark:text-white flex items-center gap-3">
-              <Shield className="h-8 w-8 text-accent" />
-              Default Permissions
-            </h1>
-            <p className="text-[#666666] dark:text-zinc-400">Set the baseline permissions for all front desk staff.</p>
+            <h1 className="text-2xl font-bold dark:text-white">Default Permissions</h1>
+            <p className="text-sm text-zinc-500 mt-1">Set the baseline permissions for all front desk staff.</p>
           </div>
         </div>
         <Button onClick={handleSave} isLoading={isSaving} disabled={isLoading}>

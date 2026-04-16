@@ -945,3 +945,33 @@ export interface FrontDeskUserPermissionOverrideUpdateRequest {
   allowedPermissions: FrontDeskPermission[];
   deniedPermissions: FrontDeskPermission[];
 }
+
+export interface MiniStatResponse {
+  label: string;
+  value: string;
+  trend: string;
+  isUp?: boolean;
+}
+
+export interface OrderStatusSliceResponse {
+  name: string;
+  value: number;
+}
+
+export interface ProfitDataPointResponse {
+  name: string;
+  grossProfit: number;
+  netProfit: number;
+}
+
+export interface RevenueDataPointResponse {
+  name: string;
+  revenue: number;
+}
+
+export interface SalesAnalyticsResponse {
+  revenueBreakdown: RevenueDataPointResponse[];
+  profitBreakdown: ProfitDataPointResponse[];
+  miniStats: MiniStatResponse[];
+  orderStatus: OrderStatusSliceResponse[];
+}

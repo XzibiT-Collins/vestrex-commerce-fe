@@ -2323,6 +2323,75 @@
         }
       }
     },
+    "/api/v1/admin/metrics/sales-analytics": {
+      "get": {
+        "tags": [
+          "admin-metric-controller"
+        ],
+        "operationId": "getSalesAnalytics",
+        "parameters": [
+          {
+            "name": "source",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "ALL",
+              "enum": [
+                "ALL",
+                "ONLINE",
+                "WALK_IN"
+              ]
+            }
+          },
+          {
+            "name": "granularity",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "DAY",
+              "enum": [
+                "DAY",
+                "WEEK",
+                "MONTH",
+                "YEAR"
+              ]
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseSalesAnalyticsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/admin/metrics/low-stock-products": {
       "get": {
         "tags": [
@@ -4766,9 +4835,7 @@
             "type": "string"
           },
           "password": {
-            "type": "string",
-            "maxLength": 2147483647,
-            "minLength": 8
+            "type": "string"
           },
           "isActive": {
             "type": "boolean"
@@ -5551,12 +5618,12 @@
           "email": {
             "type": "string"
           },
-          "totalAmountSpent": {
-            "type": "number"
-          },
           "totalOrders": {
             "type": "integer",
             "format": "int64"
+          },
+          "totalAmountSpent": {
+            "type": "number"
           }
         }
       },
@@ -5574,12 +5641,12 @@
       "PageVisitMetric": {
         "type": "object",
         "properties": {
+          "page": {
+            "type": "string"
+          },
           "uniqueVisits": {
             "type": "integer",
             "format": "int64"
-          },
-          "page": {
-            "type": "string"
           }
         }
       },
@@ -5605,6 +5672,100 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PageVisitMetric"
+            }
+          }
+        }
+      },
+      "CustomApiResponseSalesAnalyticsResponse": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "$ref": "#/components/schemas/SalesAnalyticsResponse"
+          }
+        }
+      },
+      "MiniStatResponse": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          },
+          "trend": {
+            "type": "string"
+          },
+          "isUp": {
+            "type": "boolean"
+          }
+        }
+      },
+      "OrderStatusSliceResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "value": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ProfitDataPointResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "grossProfit": {
+            "type": "number"
+          },
+          "netProfit": {
+            "type": "number"
+          }
+        }
+      },
+      "RevenueDataPointResponse": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "revenue": {
+            "type": "number"
+          }
+        }
+      },
+      "SalesAnalyticsResponse": {
+        "type": "object",
+        "properties": {
+          "revenueBreakdown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RevenueDataPointResponse"
+            }
+          },
+          "profitBreakdown": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProfitDataPointResponse"
+            }
+          },
+          "miniStats": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MiniStatResponse"
+            }
+          },
+          "orderStatus": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderStatusSliceResponse"
             }
           }
         }

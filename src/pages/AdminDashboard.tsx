@@ -132,8 +132,8 @@ export const AdminDashboard = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-zinc-900 dark:text-white">Executive Overview</h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-1">Performance metrics and key indicators.</p>
+          <h1 className="text-2xl font-bold dark:text-white">Executive Overview</h1>
+          <p className="text-sm text-zinc-500 mt-1">Performance metrics and key indicators.</p>
         </div>
         <div className="flex items-center gap-3">
           <Button>

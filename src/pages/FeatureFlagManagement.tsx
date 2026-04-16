@@ -50,9 +50,7 @@ export const FeatureFlagManagement = () => {
         <div className="p-6 max-w-4xl mx-auto">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-2xl font-bold dark:text-white flex items-center gap-2">
-                        <Settings className="h-6 w-6" /> System Settings
-                    </h1>
+                    <h1 className="text-2xl font-bold dark:text-white">System Settings</h1>
                     <p className="text-sm text-[#666666] dark:text-zinc-400 mt-1">
                         Manage global feature flags and system behavior
                     </p>

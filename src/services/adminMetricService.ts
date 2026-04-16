@@ -10,7 +10,8 @@ import {
     TopCustomer,
     LowStockProduct,
     CustomerFullDetailsResponse,
-    OrderListResponse
+    OrderListResponse,
+    SalesAnalyticsResponse
 } from '../types';
 
 export const adminMetricService = {
@@ -53,6 +54,21 @@ export const adminMetricService = {
         const response = await api.get<CustomApiResponse<SiteVisitMetric>>(
             `/admin/metrics/site-metric`,
             { params: { from, to } }
+        );
+        return response.data.data;
+    },
+
+    /**
+     * GET /api/v1/admin/metrics/sales-analytics
+     */
+    getSalesAnalytics: async (granularity?: string, from?: string, to?: string): Promise<SalesAnalyticsResponse> => {
+        const params: any = {};
+        if (granularity) params.granularity = granularity;
+        if (from) params.from = from;
+        if (to) params.to = to;
+        const response = await api.get<CustomApiResponse<SalesAnalyticsResponse>>(
+            `/admin/metrics/sales-analytics`,
+            { params }
         );
         return response.data.data;
     },
