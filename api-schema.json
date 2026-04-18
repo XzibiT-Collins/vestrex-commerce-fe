@@ -1438,6 +1438,15 @@
             "schema": {
               "type": "number"
             }
+          },
+          {
+            "name": "couponCode",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": ""
+            }
           }
         ],
         "responses": {
@@ -1446,7 +1455,7 @@
             "content": {
               "*/*": {
                 "schema": {
-                  "$ref": "#/components/schemas/CustomApiResponseTaxCalculationResponse"
+                  "$ref": "#/components/schemas/CustomApiResponseTaxAndDiscountCalculationResponse"
                 }
               }
             }
@@ -1636,6 +1645,26 @@
               "*/*": {
                 "schema": {
                   "$ref": "#/components/schemas/CustomApiResponsePageResponseProductListing"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/product/featured": {
+      "get": {
+        "tags": [
+          "product-controller"
+        ],
+        "operationId": "getFeaturedProducts",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomApiResponseListProductListing"
                 }
               }
             }
@@ -4895,14 +4924,34 @@
           }
         }
       },
-      "CustomApiResponseTaxCalculationResponse": {
+      "CustomApiResponseTaxAndDiscountCalculationResponse": {
         "type": "object",
         "properties": {
           "description": {
             "type": "string"
           },
           "data": {
-            "$ref": "#/components/schemas/TaxCalculationResponse"
+            "$ref": "#/components/schemas/TaxAndDiscountCalculationResponse"
+          }
+        }
+      },
+      "TaxAndDiscountCalculationResponse": {
+        "type": "object",
+        "properties": {
+          "orderTaxes": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/OrderTaxResponse"
+            }
+          },
+          "totalTaxAmount": {
+            "type": "string"
+          },
+          "totalAmountAfterTax": {
+            "type": "string"
+          },
+          "discount": {
+            "type": "number"
           }
         }
       },
@@ -5076,6 +5125,20 @@
           "stockQuantity": {
             "type": "integer",
             "format": "int32"
+          }
+        }
+      },
+      "CustomApiResponseListProductListing": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProductListing"
+            }
           }
         }
       },
@@ -5612,18 +5675,18 @@
       "TopCustomer": {
         "type": "object",
         "properties": {
-          "fullName": {
-            "type": "string"
-          },
-          "email": {
-            "type": "string"
-          },
           "totalOrders": {
             "type": "integer",
             "format": "int64"
           },
           "totalAmountSpent": {
             "type": "number"
+          },
+          "fullName": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
           }
         }
       },
@@ -5787,6 +5850,9 @@
       "LowStockProduct": {
         "type": "object",
         "properties": {
+          "productImage": {
+            "type": "string"
+          },
           "id": {
             "type": "integer",
             "format": "int64"
@@ -5796,9 +5862,6 @@
             "format": "int32"
           },
           "productName": {
-            "type": "string"
-          },
-          "productImage": {
             "type": "string"
           }
         }
@@ -5885,22 +5948,22 @@
       "TopCompositionMetric": {
         "type": "object",
         "properties": {
-          "totalRevenue": {
-            "type": "number"
+          "totalSold": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "productImage": {
+            "type": "string"
           },
           "productId": {
             "type": "integer",
             "format": "int64"
           },
+          "totalRevenue": {
+            "type": "number"
+          },
           "productName": {
             "type": "string"
-          },
-          "productImage": {
-            "type": "string"
-          },
-          "totalSold": {
-            "type": "integer",
-            "format": "int64"
           }
         }
       },

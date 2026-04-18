@@ -12,9 +12,10 @@ import { extractErrorMessage } from '../utils';
 
 interface ProductCardProps {
   product: ProductListing;
+  disableAnimation?: boolean;
 }
 
-export const ProductCard = ({ product }: ProductCardProps) => {
+export const ProductCard = ({ product, disableAnimation = false }: ProductCardProps) => {
   const { addItem, setIsCartOpen } = useCart();
 
   const handleAddToCart = async (e: React.MouseEvent) => {
@@ -37,8 +38,8 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={disableAnimation ? false : { opacity: 0, y: 20 }}
+      whileInView={disableAnimation ? false : { opacity: 1, y: 0 }}
       viewport={{ once: true }}
       className="group relative bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden card-shadow transition-all duration-300 hover:-translate-y-1 border border-transparent dark:border-zinc-800"
     >

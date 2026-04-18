@@ -497,6 +497,8 @@ export interface TaxCalculationResult {
   totalTaxAmount: string;
   /** Pre-formatted string, e.g. "GHS 105.00" */
   totalAmountAfterTax: string;
+  /** Discount applied to the order */
+  discount: number;
 }
 
 /** Matches backend TaxResponse — returned by admin CRUD endpoints */

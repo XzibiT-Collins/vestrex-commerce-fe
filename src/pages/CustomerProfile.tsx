@@ -194,20 +194,42 @@ export const CustomerProfile = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-      <h1 className="text-4xl font-serif font-bold dark:text-white mb-10">My Account</h1>
+      <h1 className="text-2xl font-bold dark:text-white mb-8">My Account</h1>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Sidebar tabs */}
-        <aside className="w-full lg:w-56 shrink-0">
+      <div className="flex flex-col lg:flex-row gap-6 lg:gap-8">
+
+        {/* ── Mobile: single-row pill tab bar ── */}
+        <div className="lg:hidden">
+          <div className="flex items-center gap-1.5 bg-[#F5F5F5] dark:bg-zinc-800/60 rounded-2xl p-1 overflow-x-auto scrollbar-hide">
+            {TABS.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex-1 min-w-0 flex flex-col items-center gap-0.5 px-2 py-2 rounded-xl text-[10px] font-bold uppercase tracking-wide transition-all whitespace-nowrap ${
+                  activeTab === tab.id
+                    ? 'bg-white dark:bg-zinc-900 text-[#1A1A1A] dark:text-white shadow-sm'
+                    : 'text-[#999999] dark:text-zinc-500 hover:text-[#1A1A1A] dark:hover:text-zinc-300'
+                }`}
+              >
+                <tab.icon className={`h-4 w-4 shrink-0 ${activeTab === tab.id ? 'text-accent-dark' : ''}`} />
+                <span className="truncate w-full text-center leading-tight">{tab.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Desktop: vertical sidebar ── */}
+        <aside className="hidden lg:block w-56 shrink-0">
           <nav className="space-y-1">
             {TABS.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${activeTab === tab.id
-                  ? 'bg-accent-dark text-[#1A1A1A] dark:bg-accent-dark dark:text-[#1A1A1A]'
-                  : 'text-[#666666] dark:text-zinc-400 hover:bg-[#F5F5F5] dark:hover:bg-zinc-800'
-                  }`}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
+                  activeTab === tab.id
+                    ? 'bg-accent-dark text-[#1A1A1A] dark:bg-accent-dark dark:text-[#1A1A1A]'
+                    : 'text-[#666666] dark:text-zinc-400 hover:bg-[#F5F5F5] dark:hover:bg-zinc-800'
+                }`}
               >
                 <tab.icon className="h-4 w-4" />
                 {tab.label}

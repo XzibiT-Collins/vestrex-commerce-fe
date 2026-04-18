@@ -23,6 +23,13 @@ export const productService = {
         return res.data.data;
     },
 
+    getFeatured: async (): Promise<ProductListing[]> => {
+        const res = await api.get<CustomApiResponse<ProductListing[]>>(
+            '/product/featured'
+        );
+        return res.data.data;
+    },
+
     getAdminListings: async (
         page = 0,
         size = 9

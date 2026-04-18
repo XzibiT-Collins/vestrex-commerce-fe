@@ -3,13 +3,13 @@ import type { CustomApiResponse, TaxCalculationResult, TaxRequest, TaxResponse }
 
 export const taxService = {
     /**
-     * Calculate taxes for a given subtotal.
-     * GET /api/v1/tax?subtotal={subtotal}
+     * Calculate taxes and discounts for a given subtotal and optional coupon code.
+     * GET /api/v1/tax?subtotal={subtotal}&couponCode={couponCode}
      */
-    calculateTax: async (subtotal: number): Promise<TaxCalculationResult> => {
+    calculateTax: async (subtotal: number, couponCode?: string): Promise<TaxCalculationResult> => {
         const res = await api.get<CustomApiResponse<TaxCalculationResult>>(
             '/tax',
-            { params: { subtotal } }
+            { params: { subtotal, couponCode } }
         );
         return res.data.data;
     },

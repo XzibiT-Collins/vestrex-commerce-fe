@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { MapPin, Loader2 } from 'lucide-react';
+import { LocateFixed, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import usePlacesAutocomplete, {
   getGeocode,
@@ -207,19 +207,40 @@ export const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
             className
           )}
         />
-        <button
-          type="button"
-          onClick={handleGetCurrentLocation}
-          disabled={isLocating}
-          className="absolute right-3 text-[#999999] hover:text-[#1A1A1A] dark:text-zinc-500 dark:hover:text-white transition-colors focus:outline-none"
-          title="Use current location"
-        >
-          {isLocating ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <MapPin className="h-4 w-4" />
-          )}
-        </button>
+        <div className="absolute right-3 group/locbtn">
+          <button
+            type="button"
+            onClick={handleGetCurrentLocation}
+            disabled={isLocating}
+            className="flex items-center justify-center text-[#999999] hover:text-[#1A1A1A] dark:text-zinc-500 dark:hover:text-white transition-colors focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            aria-label="Use current location"
+          >
+            {isLocating ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <LocateFixed className="h-4 w-4" />
+            )}
+          </button>
+          {/* Tooltip */}
+          <div
+            className="
+              pointer-events-none absolute bottom-full right-0 mb-2
+              w-max max-w-[160px]
+              rounded-lg bg-[#1A1A1A] dark:bg-zinc-700
+              px-2.5 py-1.5
+              text-[11px] font-medium leading-tight text-white
+              shadow-lg
+              opacity-0 translate-y-1 scale-95
+              group-hover/locbtn:opacity-100 group-hover/locbtn:translate-y-0 group-hover/locbtn:scale-100
+              transition-all duration-150 ease-out
+              z-[200]
+            "
+          >
+            Use my current location
+            {/* Arrow */}
+            <span className="absolute top-full right-3 -translate-x-1/2 border-4 border-transparent border-t-[#1A1A1A] dark:border-t-zinc-700" />
+          </div>
+        </div>
       </div>
       {status === 'OK' && (
         <ul className="absolute z-[100] w-full bg-white dark:bg-zinc-900 border border-[#E5E5E5] dark:border-zinc-800 rounded-xl mt-1 shadow-xl max-h-60 overflow-auto py-2">

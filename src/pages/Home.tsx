@@ -7,6 +7,7 @@ import { ProductCard } from '../components/ProductCard';
 import { EmptyState } from '../components/EmptyState';
 import { categoryService } from '../services/categoryService';
 import { productService } from '../services/productService';
+import { FeaturedCarousel } from '../components/FeaturedCarousel';
 import type { CategoryResponse, ProductListing as ProductListingType } from '../types';
 
 export const Home = () => {
@@ -20,9 +21,9 @@ export const Home = () => {
       })
       .catch(() => { });
 
-    productService.getListings(0, 4)
+    productService.getFeatured()
       .then((res) => {
-        if (res && Array.isArray(res.content)) setFeaturedProducts(res.content);
+        if (Array.isArray(res)) setFeaturedProducts(res);
       })
       .catch(() => { });
   }, []);
@@ -156,13 +157,7 @@ export const Home = () => {
             <EmptyState icon={<Star className="w-10 h-10 text-[#999999]" />} title="No Products Available" description="Check back later for new featured pieces." />
           </div>
         ) : (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-8">
-            {featuredProducts.map((product) => (
-              <div key={product.productId}>
-                <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
+          <FeaturedCarousel products={featuredProducts} />
         )}
       </section>
 

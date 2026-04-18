@@ -42,6 +42,7 @@ export const Checkout = () => {
   const [formData, setFormData] = useState<DeliveryDetailRequest>(emptyAddress);
   const [taxResult, setTaxResult] = useState<TaxCalculationResult | null>(null);
   const [isTaxLoading, setIsTaxLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
 
   useEffect(() => {
     deliveryDetailService.getMyAddresses().then((data) => {
@@ -52,17 +53,42 @@ export const Checkout = () => {
     }).catch(() => { }).finally(() => setIsAddressLoading(false));
   }, []);
 
-  // Fetch tax breakdown whenever the cart total changes
+  // Fetch tax breakdown whenever subtotal changes or coupon reaches valid state
   useEffect(() => {
     if (!totalPrice) return;
     const subtotal = parseFloat(totalPrice.replace(/[^0-9.]/g, ''));
     if (isNaN(subtotal) || subtotal <= 0) return;
+
+    // Trigger logic: 
+    // 1. If empty, calculate normal tax.
+    // 2. If exactly 8, calculate tax + discount.
+    // 3. Otherwise (1-7 or >8), show validation error and SKIP API.
+    
+    if (couponCode.length > 0 && couponCode.length !== 8) {
+      setCouponError('Coupon must be 8 characters');
+      // We don't clear taxResult immediately to avoid flickering, 
+      // but we skip the API call.
+      return;
+    }
+
+    const effectiveCouponInput = couponCode.length === 8 ? couponCode : undefined;
+
     setIsTaxLoading(true);
-    taxService.calculateTax(subtotal)
-      .then(setTaxResult)
-      .catch(() => setTaxResult(null))
+    taxService.calculateTax(subtotal, effectiveCouponInput)
+      .then((res) => {
+        setTaxResult(res);
+        setCouponError(null);
+      })
+      .catch((err) => {
+        setTaxResult(null);
+        if (effectiveCouponInput) {
+          setCouponError(extractErrorMessage(err, 'Invalid or expired coupon'));
+        } else {
+          setCouponError(null);
+        }
+      })
       .finally(() => setIsTaxLoading(false));
-  }, [totalPrice]);
+  }, [totalPrice, couponCode]);
 
   const handleAddAddress = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -202,6 +228,12 @@ export const Checkout = () => {
                     <span>GHS {Number(tax.taxAmount).toFixed(2)}</span>
                   </div>
                 ))}
+                {taxResult.discount > 0 && (
+                  <div className="flex justify-between text-green-600 font-medium">
+                    <span>Discount</span>
+                    <span>- GHS {Number(taxResult.discount).toFixed(2)}</span>
+                  </div>
+                )}
               </>
             ) : null}
 
@@ -219,13 +251,14 @@ export const Checkout = () => {
           </div>
 
           {/* Coupon */}
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Coupon code"
+          <div className="pt-2">
+            <Input
+              placeholder="Enter 8-digit coupon"
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-              className="flex-1 px-3 py-2 bg-[#F5F5F5] dark:bg-zinc-800 dark:text-white rounded-xl text-sm border-none focus:ring-1 focus:ring-accent outline-none"
+              error={couponError || undefined}
+              maxLength={8}
+              className="bg-[#F5F5F5] dark:bg-zinc-800 border-none h-11"
             />
           </div>
 
@@ -233,7 +266,7 @@ export const Checkout = () => {
             className="w-full h-12 rounded-2xl"
             onClick={handleCheckout}
             isLoading={isCheckingOut}
-            disabled={!selectedAddressId}
+            disabled={!selectedAddressId || !!couponError || (couponCode.length > 0 && couponCode.length !== 8)}
           >
             Pay with Paystack
           </Button>
